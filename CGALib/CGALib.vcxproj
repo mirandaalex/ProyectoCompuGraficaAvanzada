@@ -26,6 +26,7 @@
     <ClCompile Include="src\FontTypeRendering.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Model.cpp" />
+    <ClCompile Include="src\ModelBuzz.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\ShadowBox.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="include\Headers\mathUtil.h" />
     <ClInclude Include="include\Headers\Mesh.h" />
     <ClInclude Include="include\Headers\Model.h" />
+    <ClInclude Include="include\Headers\ModelBuzz.h" />
     <ClInclude Include="include\Headers\Shader.h" />
     <ClInclude Include="include\Headers\ShadowBox.h" />
     <ClInclude Include="include\Headers\Sphere.h" />
