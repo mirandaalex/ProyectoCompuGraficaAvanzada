@@ -1,0 +1,21 @@
+newmtl colmillo:lambert2SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd colmillo.png
+Ni 1.00
+newmtl colmillo:lambert3SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd base_vela.png
+Ni 1.00
+newmtl puertaTras:lambert28SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd puertaTrasera.png
+Ni 1.00

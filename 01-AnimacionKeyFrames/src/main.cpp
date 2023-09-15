@@ -83,6 +83,9 @@ Model modelDartLegoLeftHand;
 Model modelDartLegoRightHand;
 Model modelDartLegoLeftLeg;
 Model modelDartLegoRightLeg;
+//Cabania y tv
+Model modelTV;
+Model modelCabania;
 //ModelBuzz class
 ModelBuzz Buzz;
 
@@ -115,6 +118,8 @@ glm::mat4 modelMatrixHeli = glm::mat4(1.0f);
 glm::mat4 modelMatrixLambo = glm::mat4(1.0);
 glm::mat4 modelMatrixAircraft = glm::mat4(1.0);
 glm::mat4 modelMatrixDart = glm::mat4(1.0f);
+glm::mat4 modelMatrixTV = glm::mat4(1.0f);
+glm::mat4 modelMatrixCabania = glm::mat4(1.0f);
 
 float rotDartHead = 0.0, rotDartLeftArm = 0.0, rotDartLeftHand = 0.0, rotDartRightArm = 0.0, rotDartRightHand = 0.0, rotDartLeftLeg = 0.0, rotDartRightLeg = 0.0;
 
@@ -293,6 +298,12 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	modelDartLegoLeftLeg.setShader(&shaderMulLighting);
 	modelDartLegoRightLeg.loadModel("../models/LegoDart/LeoDart_right_leg.obj");
 	modelDartLegoRightLeg.setShader(&shaderMulLighting);
+
+	//Carga y asignacion de shader para modelos del punto 1, practica 1	
+	modelTV.loadModel("../models/tv/tv.obj");
+	modelTV.setShader(&shaderMulLighting);
+	modelCabania.loadModel("../models/cabania/cabaniaFachada.obj");
+	modelCabania.setShader(&shaderMulLighting);
 
 	//ModelBuzz class
 	Buzz.LoadModel(&shaderMulLighting);
@@ -503,6 +514,9 @@ void destroy() {
 	modelLamboRearRightWheel.destroy();
 	modelLamboRightDor.destroy();
 	modelRock.destroy();
+	//Destruccion de nuevos modelos del punto 1, practica 1
+	modelTV.destroy();
+	modelCabania.destroy();
 	//Destroy Buzz
 	//ModelBuzz class
 	Buzz.destroy();
@@ -780,6 +794,16 @@ void applicationLoop() {
 	int numberAdvance = 0;
 	int maxAdvance = 0.0;
 
+	//Transformaciones de los modelos del punto 1, practica 1
+	modelMatrixTV = glm::translate(modelMatrixTV, glm::vec3(-2.0f, 0.0f, 20.0f));
+	modelMatrixTV = glm::rotate(modelMatrixTV, glm::radians(90.0f), glm::vec3(0, 1, 0));
+
+	modelMatrixCabania = glm::translate(modelMatrixCabania, glm::vec3(-45.0f, 1.0f, 10.0f));
+	modelMatrixCabania = glm::rotate(modelMatrixCabania, glm::radians(45.0f), glm::vec3(0, 1, 0));
+	modelMatrixCabania = glm::scale (modelMatrixCabania, glm::vec3(5.0f, 5.0f, 5.0f));
+
+
+
 	matrixModelRock = glm::translate(matrixModelRock, glm::vec3(-3.0, 0.0, 2.0));
 
 	modelMatrixHeli = glm::translate(modelMatrixHeli, glm::vec3(5.0, 10.0, -5.0));
@@ -989,6 +1013,12 @@ void applicationLoop() {
 		// Forze to enable the unit texture to 0 always ----------------- IMPORTANT
 		glActiveTexture(GL_TEXTURE0);
 
+		//Modelos nuevos para la practica 1
+		modelTV.render(modelMatrixTV);
+		//glActiveTexture(GL_TEXTURE0);
+		modelCabania.render(modelMatrixCabania);
+		//glActiveTexture(GL_TEXTURE0);
+		
 		// Render for the aircraft model
 		modelAircraft.render(modelMatrixAircraft);
 
