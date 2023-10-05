@@ -102,7 +102,8 @@ Model guardianModelAnimate;
 // Cybog
 Model cyborgModelAnimate;
 // Terrain model instance
-Terrain terrain(-1, -1, 200, 8, "../Textures/heightmap.png");
+Model luchadorModelAnimate;
+Terrain terrain(-1, -1, 200, 50, "../Textures/heightmap.png");
 
 GLuint textureCespedID, textureWallID, textureWindowID, textureHighwayID, textureLandingPadID;
 GLuint skyboxTextureID;
@@ -138,7 +139,9 @@ glm::mat4 modelMatrixMayow = glm::mat4(1.0f);
 glm::mat4 modelMatrixCowboy = glm::mat4(1.0f);
 glm::mat4 modelMatrixGuardian = glm::mat4(1.0f);
 glm::mat4 modelMatrixCyborg = glm::mat4(1.0f);
+glm::mat4 modelMatrixLuchador = glm::mat4(1.0f);
 
+int animationLuchadorIndex = 0;
 int animationMayowIndex = 1;
 float rotDartHead = 0.0, rotDartLeftArm = 0.0, rotDartLeftHand = 0.0, rotDartRightArm = 0.0, rotDartRightHand = 0.0, rotDartLeftLeg = 0.0, rotDartRightLeg = 0.0;
 float rotBuzzHead = 0.0, rotBuzzLeftarm = 0.0, rotBuzzLeftForeArm = 0.0, rotBuzzLeftHand = 0.0;
@@ -367,6 +370,9 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	cyborgModelAnimate.loadModel("../models/cyborg/cyborg.fbx");
 	cyborgModelAnimate.setShader(&shaderMulLighting);
 
+	luchadorModelAnimate.loadModel("../models/Luchador/luchador_animado.fbx");
+	luchadorModelAnimate.setShader(&shaderMulLighting);
+	
 	// Terreno
 	terrain.init();
 	terrain.setShader(&shaderMulLighting);
@@ -586,6 +592,7 @@ void destroy() {
 	cowboyModelAnimate.destroy();
 	guardianModelAnimate.destroy();
 	cyborgModelAnimate.destroy();
+	luchadorModelAnimate.destroy();
 
 	// Terrains objects Delete
 	terrain.destroy();
@@ -666,7 +673,7 @@ bool processInput(bool continueApplication) {
 	if (enableCountSelected && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS){
 		enableCountSelected = false;
 		modelSelected++;
-		if(modelSelected > 4)
+		if(modelSelected > 5)
 			modelSelected = 0;
 		if(modelSelected == 1)
 			fileName = "../animaciones/animation_dart_joints.txt";
@@ -810,6 +817,23 @@ bool processInput(bool continueApplication) {
 		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, -0.02));
 		animationMayowIndex = 0;
 	}
+	
+	// Controles de Luchador
+	if (modelSelected == 5 && glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+		modelMatrixLuchador = glm::rotate(modelMatrixLuchador, 0.02f, glm::vec3(0, 1, 0));
+		animationLuchadorIndex = 1;
+	} else if (modelSelected == 5 && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+		modelMatrixLuchador = glm::rotate(modelMatrixLuchador, -0.02f, glm::vec3(0, 1, 0));
+		animationLuchadorIndex = 1;
+	}
+	if (modelSelected == 5 && glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+		modelMatrixLuchador = glm::translate(modelMatrixLuchador, glm::vec3(0.0, 0.0, 0.02));
+		animationLuchadorIndex = 1;
+	}
+	else if (modelSelected == 5 && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+		modelMatrixLuchador = glm::translate(modelMatrixLuchador, glm::vec3(0.0, 0.0, -0.02));
+		animationLuchadorIndex = 1;
+	}
 
 	glfwPollEvents();
 	return continueApplication;
@@ -849,6 +873,9 @@ void applicationLoop() {
 	modelMatrixGuardian = glm::rotate(modelMatrixGuardian, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
 
 	modelMatrixCyborg = glm::translate(modelMatrixCyborg, glm::vec3(5.0f, 0.05, 0.0f));
+
+	modelMatrixLuchador = glm::translate(modelMatrixLuchador, glm::vec3(10.0f, 0.05, 0.0f));
+
 
 	// Variables to interpolation key frames
 	fileName = "../animaciones/animation_dart_joints.txt";
@@ -1113,6 +1140,13 @@ void applicationLoop() {
 		cyborgModelAnimate.setAnimationIndex(1);
 		cyborgModelAnimate.render(modelMatrixCyborgBody);
 
+		/**Luchador*/
+		modelMatrixLuchador[3][1] = terrain.getHeightTerrain(modelMatrixLuchador[3][0], modelMatrixLuchador[3][2]);
+		glm::mat4 modelMatrixLuchadorBody = glm::mat4(modelMatrixLuchador);
+		modelMatrixLuchadorBody = glm::scale(modelMatrixLuchadorBody, glm::vec3(0.009f));
+		luchadorModelAnimate.setAnimationIndex(animationLuchadorIndex);
+		luchadorModelAnimate.render(modelMatrixLuchadorBody);
+		animationLuchadorIndex = 0;
 		/*******************************************
 		 * Skybox
 		 *******************************************/

@@ -49,6 +49,7 @@ Shader shader;
 Shader shaderSkybox;
 //Shader con multiples luces
 Shader shaderMulLighting;
+Shader shaderMulLightingMt;
 
 std::shared_ptr<FirstPersonCamera> camera(new FirstPersonCamera());
 
@@ -91,6 +92,7 @@ ModelBuzz Buzz;
 
 GLuint textureCespedID, textureWallID, textureWindowID, textureHighwayID, textureLandingPadID;
 GLuint skyboxTextureID;
+GLuint textureWaterID, textureSpongeID;
 
 GLenum types[6] = {
 GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -224,6 +226,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	shader.initialize("../Shaders/colorShader.vs", "../Shaders/colorShader.fs");
 	shaderSkybox.initialize("../Shaders/skyBox.vs", "../Shaders/skyBox.fs");
 	shaderMulLighting.initialize("../Shaders/iluminacion_texture_res.vs", "../Shaders/multipleLights.fs");
+	shaderMulLightingMt.initialize("../Shaders/iluminacion_texture_res.vs", "../Shaders/multipleLights_ejercicio_mt.fs");
 
 	// Inicializacion de los objetos.
 	skyboxSphere.init();
@@ -243,7 +246,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	boxLandingPad.setShader(&shaderMulLighting);
 
 	esfera1.init();
-	esfera1.setShader(&shaderMulLighting);
+	esfera1.setShader(&shaderMulLightingMt);
 
 	modelRock.loadModel("../models/rock/rock.obj");
 	modelRock.setShader(&shaderMulLighting);
@@ -469,6 +472,44 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 		std::cout << "Fallo la carga de textura" << std::endl;
 	textureLandingPad.freeImage(); // Liberamos memoria
 
+
+	// Definiendo la textura
+	Texture textureSponge("../Textures/sponge.jpg");
+	textureSponge.loadImage(); // Cargar la textura
+	glGenTextures(1, &textureSpongeID); // Creando el id de la textura del Sponge
+	glBindTexture(GL_TEXTURE_2D, textureSpongeID); // Se enlaza la textura
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Wrapping en el eje v
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtering de maximimizacion
+	if(textureSponge.getData()){
+		// Transferir los datos de la imagen a la tarjeta
+		glTexImage2D(GL_TEXTURE_2D, 0, textureSponge.getChannels() == 3 ? GL_RGB : GL_RGBA, textureSponge.getWidth(), textureSponge.getHeight(), 0,
+		textureSponge.getChannels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, textureSponge.getData());
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else 
+		std::cout << "Fallo la carga de textura" << std::endl;
+	textureSponge.freeImage(); // Liberamos memoria
+	
+	// Definiendo la textura
+	Texture textureWater("../Textures/water.jpg");
+	textureWater.loadImage(); // Cargar la textura
+	glGenTextures(1, &textureWaterID); // Creando el id de la textura del Water
+	glBindTexture(GL_TEXTURE_2D, textureWaterID); // Se enlaza la textura
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Wrapping en el eje v
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtering de maximimizacion
+	if(textureWater.getData()){
+		// Transferir los datos de la imagen a la tarjeta
+		glTexImage2D(GL_TEXTURE_2D, 0, textureWater.getChannels() == 3 ? GL_RGB : GL_RGBA, textureWater.getWidth(), textureWater.getHeight(), 0,
+		textureWater.getChannels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, textureWater.getData());
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else 
+		std::cout << "Fallo la carga de textura" << std::endl;
+	textureWater.freeImage(); // Liberamos memoria
 }
 
 void destroy() {
@@ -480,6 +521,7 @@ void destroy() {
 	// Shaders Delete
 	shader.destroy();
 	shaderMulLighting.destroy();
+	shaderMulLightingMt.destroy();
 	shaderSkybox.destroy();
 
 	// Basic objects Delete
@@ -529,6 +571,8 @@ void destroy() {
 	glDeleteTextures(1, &textureWindowID);
 	glDeleteTextures(1, &textureHighwayID);
 	glDeleteTextures(1, &textureLandingPadID);
+	glDeleteTextures(1, &textureSpongeID);
+	glDeleteTextures(1, &textureWaterID);
 
 	// Cube Maps Delete
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
@@ -860,6 +904,10 @@ void applicationLoop() {
 					glm::value_ptr(projection));
 		shaderMulLighting.setMatrix4("view", 1, false,
 				glm::value_ptr(view));
+		shaderMulLightingMt.setMatrix4("projection", 1, false,
+					glm::value_ptr(projection));
+		shaderMulLightingMt.setMatrix4("view", 1, false,
+				glm::value_ptr(view));
 
 		/*******************************************
 		 * Propiedades Luz direccional
@@ -869,16 +917,24 @@ void applicationLoop() {
 		shaderMulLighting.setVectorFloat3("directionalLight.light.diffuse", glm::value_ptr(glm::vec3(0.7, 0.7, 0.7)));
 		shaderMulLighting.setVectorFloat3("directionalLight.light.specular", glm::value_ptr(glm::vec3(0.9, 0.9, 0.9)));
 		shaderMulLighting.setVectorFloat3("directionalLight.direction", glm::value_ptr(glm::vec3(-1.0, 0.0, 0.0)));
+		
+		shaderMulLightingMt.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
+		shaderMulLightingMt.setVectorFloat3("directionalLight.light.ambient", glm::value_ptr(glm::vec3(0.3, 0.3, 0.3)));
+		shaderMulLightingMt.setVectorFloat3("directionalLight.light.diffuse", glm::value_ptr(glm::vec3(0.7, 0.7, 0.7)));
+		shaderMulLightingMt.setVectorFloat3("directionalLight.light.specular", glm::value_ptr(glm::vec3(0.9, 0.9, 0.9)));
+		shaderMulLightingMt.setVectorFloat3("directionalLight.direction", glm::value_ptr(glm::vec3(-1.0, 0.0, 0.0)));
 
 		/*******************************************
 		 * Propiedades SpotLights
 		 *******************************************/
 		shaderMulLighting.setInt("spotLightCount", 0);
+		shaderMulLightingMt.setInt("spotLightCount", 0);
 
 		/*******************************************
 		 * Propiedades PointLights
 		 *******************************************/
 		shaderMulLighting.setInt("pointLightCount", 0);
+		shaderMulLightingMt.setInt("pointLightCount", 0);
 
 		/*******************************************
 		 * Cesped
@@ -976,12 +1032,17 @@ void applicationLoop() {
 		 * Esfera 1
 		*********************************************/
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, textureHighwayID);
-		shaderMulLighting.setInt("texture1", 0);
+		glBindTexture(GL_TEXTURE_2D, textureSpongeID);
+		shaderMulLightingMt.setInt("texture1", 0);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, textureWaterID);
+		shaderMulLightingMt.setInt("texture2", 3);
 		esfera1.setScale(glm::vec3(3.0, 3.0, 3.0));
 		esfera1.setPosition(glm::vec3(3.0f, 2.0f, -10.0f));
 		esfera1.render();
 
+		/**
+		 * Esfera sin texturas con modo de malla
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureWallID);
 		shaderMulLighting.setInt("texture1", 0);
@@ -990,6 +1051,18 @@ void applicationLoop() {
 		esfera1.enableWireMode();
 		esfera1.render();
 		esfera1.enableFillMode();
+		*/
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureLandingPadID);
+		shaderMulLightingMt.setInt("texture2", 0);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, textureWallID);
+		shaderMulLightingMt.setInt("texture1", 3);
+		esfera1.setScale(glm::vec3(4.0, 4.0, 4.0));
+		esfera1.setPosition(glm::vec3(3.0f, 2.0f, 10.0f));
+		//esfera1.enableWireMode();
+		esfera1.render();
+		//esfera1.enableFillMode();
 
 		/******************************************
 		 * Landing pad

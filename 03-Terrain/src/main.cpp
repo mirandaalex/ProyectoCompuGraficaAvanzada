@@ -32,6 +32,8 @@
 
 // Include loader Model class
 #include "Headers/Model.h"
+//Inckyde del terreno
+#include "Headers/Terrain.h"
 
 #include "Headers/AnimationUtils.h"
 
@@ -98,6 +100,10 @@ Model cowboyModelAnimate;
 Model guardianModelAnimate;
 // Cybog
 Model cyborgModelAnimate;
+//luchador
+Model Luchador;
+//Modelo del terreno
+Terrain terrain(-1,-1,500,30,"../Textures/terrain2023_1.png");
 
 GLuint textureCespedID, textureWallID, textureWindowID, textureHighwayID, textureLandingPadID;
 GLuint skyboxTextureID;
@@ -133,6 +139,7 @@ glm::mat4 modelMatrixMayow = glm::mat4(1.0f);
 glm::mat4 modelMatrixCowboy = glm::mat4(1.0f);
 glm::mat4 modelMatrixGuardian = glm::mat4(1.0f);
 glm::mat4 modelMatrixCyborg = glm::mat4(1.0f);
+glm::mat4 modelMatrixLuchador = glm::mat4(1.0f);
 
 int animationMayowIndex = 1;
 float rotDartHead = 0.0, rotDartLeftArm = 0.0, rotDartLeftHand = 0.0, rotDartRightArm = 0.0, rotDartRightHand = 0.0, rotDartLeftLeg = 0.0, rotDartRightLeg = 0.0;
@@ -362,6 +369,14 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	cyborgModelAnimate.loadModel("../models/cyborg/cyborg.fbx");
 	cyborgModelAnimate.setShader(&shaderMulLighting);
 
+	//Luchador
+	Luchador.loadModel("../models/Luchador/luchador_animado.fbx");
+	Luchador.setShader(&shaderMulLighting);
+
+	//
+	terrain.init();
+	terrain.setShader(&shaderMulLighting);
+
 	camera->setPosition(glm::vec3(0.0, 3.0, 4.0));
 	
 	// Carga de texturas para el skybox
@@ -577,6 +592,8 @@ void destroy() {
 	cowboyModelAnimate.destroy();
 	guardianModelAnimate.destroy();
 	cyborgModelAnimate.destroy();
+	terrain.destroy();
+	Luchador.destroy();
 
 	// Textures Delete
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -838,6 +855,8 @@ void applicationLoop() {
 
 	modelMatrixCyborg = glm::translate(modelMatrixCyborg, glm::vec3(5.0f, 0.05, 0.0f));
 
+	modelMatrixLuchador = glm::translate(modelMatrixLuchador, glm::vec3(10.0f, 0.05, 0.0f));
+
 	// Variables to interpolation key frames
 	fileName = "../animaciones/animation_dart_joints.txt";
 	keyFramesDartJoints = getKeyRotFrames(fileName);
@@ -907,7 +926,7 @@ void applicationLoop() {
 		/*******************************************
 		 * Cesped
 		 *******************************************/
-		glm::mat4 modelCesped = glm::mat4(1.0);
+		/* glm::mat4 modelCesped = glm::mat4(1.0);
 		modelCesped = glm::translate(modelCesped, glm::vec3(0.0, 0.0, 0.0));
 		modelCesped = glm::scale(modelCesped, glm::vec3(200.0, 0.001, 200.0));
 		// Se activa la textura del agua
@@ -916,7 +935,20 @@ void applicationLoop() {
 		shaderMulLighting.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(200, 200)));
 		boxCesped.render(modelCesped);
 		shaderMulLighting.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(0, 0)));
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(GL_TEXTURE_2D, 0); */
+		
+		/*******************************************/
+		//terrain reder
+		/*******************************************/
+		glBindTexture(GL_TEXTURE_2D,textureCespedID);
+		glActiveTexture(GL_TEXTURE0);
+		shaderMulLighting.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(200, 200)));
+		//terrain.enableWireMode();
+		terrain.setPosition(glm::vec3(250.0f,0,250.0f));
+		terrain.render();
+		shaderMulLighting.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(1.0f)));
+		glBindTexture(GL_TEXTURE_2D,0);
+
 
 		/*******************************************
 		 * Custom objects obj
@@ -1066,6 +1098,14 @@ void applicationLoop() {
 		/*****************************************
 		 * Objetos animados por huesos
 		 * **************************************/
+		modelMatrixMayow[3][1] = terrain.getHeightTerrain(modelMatrixMayow[3][0],modelMatrixMayow[3][2]);
+		glm::vec3 ejey = glm::normalize( terrain.getNormalTerrain(modelMatrixMayow[3][0],modelMatrixMayow[3][2]) );
+		glm::vec3 ejez = glm::normalize(modelMatrixMayow[2]);
+		glm::vec3 ejex = glm::normalize(glm::cross(ejey,ejez));
+		ejez = glm::normalize(glm::cross(ejex,ejey));
+		modelMatrixMayow[0] = glm::vec4(ejex,0);
+		modelMatrixMayow[1] = glm::vec4(ejey,0);
+		modelMatrixMayow[2] = glm::vec4(ejez,0);
 		glm::mat4 modelMatrixMayowBody = glm::mat4(modelMatrixMayow);
 		modelMatrixMayowBody = glm::scale(modelMatrixMayowBody, glm::vec3(0.021f));
 		mayowModelAnimate.setAnimationIndex(animationMayowIndex);
@@ -1084,6 +1124,13 @@ void applicationLoop() {
 		modelMatrixCyborgBody = glm::scale(modelMatrixCyborgBody, glm::vec3(0.009f));
 		cyborgModelAnimate.setAnimationIndex(1);
 		cyborgModelAnimate.render(modelMatrixCyborgBody);
+
+
+		glm::mat4 modelMatrixLuchadorbody = glm::mat4(modelMatrixLuchador);
+		modelMatrixLuchadorbody = glm::scale(modelMatrixLuchadorbody,glm::vec3(0.015f));
+		//modelMatrixLuchadorbody = glm::translate(modelMatrixLuchadorbody,glm::vec3(0.015f));
+		//Luchador.setAnimationIndex(1);
+		Luchador.render(modelMatrixLuchadorbody);
 
 		/*******************************************
 		 * Skybox
