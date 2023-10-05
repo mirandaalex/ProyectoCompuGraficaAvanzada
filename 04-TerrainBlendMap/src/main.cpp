@@ -1141,7 +1141,14 @@ void applicationLoop() {
 		cyborgModelAnimate.render(modelMatrixCyborgBody);
 
 		/**Luchador*/
-		modelMatrixLuchador[3][1] = terrain.getHeightTerrain(modelMatrixLuchador[3][0], modelMatrixLuchador[3][2]);
+		glm::vec3 ejey_Luchadro = glm::normalize(terrain.getNormalTerrain(modelMatrixLuchador[3][0], modelMatrixLuchador[3][2]));
+		glm::vec3 ejex_Luchadro = glm::vec3(modelMatrixLuchador[0]);
+		glm::vec3 ejez_Luchadro = glm::normalize(glm::cross(ejex_Luchadro, ejey_Luchadro));
+		ejex_Luchadro = glm::normalize(glm::cross(ejey_Luchadro, ejez_Luchadro));
+		modelMatrixLuchador[0] = glm::vec4(ejex_Luchadro, 0.0);
+		modelMatrixLuchador[1] = glm::vec4(ejey_Luchadro, 0.0);
+		modelMatrixLuchador[2] = glm::vec4(ejez_Luchadro, 0.0);
+		modelMatrixLuchador[3][1] = terrain.getHeightTerrain(modelMatrixLuchador[3][0],modelMatrixLuchador[3][2]);
 		glm::mat4 modelMatrixLuchadorBody = glm::mat4(modelMatrixLuchador);
 		modelMatrixLuchadorBody = glm::scale(modelMatrixLuchadorBody, glm::vec3(0.009f));
 		luchadorModelAnimate.setAnimationIndex(animationLuchadorIndex);
