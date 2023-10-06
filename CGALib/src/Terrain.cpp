@@ -39,7 +39,7 @@ Terrain::Terrain(float gridX, float gridZ, float size, float maxHeight, std::str
 	int vertexPointer = 0;
 	for (int i = 0; i < VERTEX_COUNT; i++) {
 		for (int j = 0; j < VERTEX_COUNT; j++) {
-			float height = getHeight(j, i, data, imageWidth, this->imageHeight, textureHeightMap.getChannels());
+			float height = getHeight(j, i, data, imageWidth, this->imageHeight,textureHeightMap.getChannels());
 			glm::vec3 normal = computeNormal(j, i, data, imageWidth,
 					this->imageHeight, textureHeightMap.getChannels());
 			heights[j][i] = height;
@@ -85,9 +85,9 @@ Terrain::~Terrain() {
 float Terrain::getHeight(int x, int z, unsigned char * data, int imageWidth, int imageHeight, int numeroCanales){
 	if(x < 0 || x > imageWidth || z < 0 || z >  imageHeight)
 		return 0;
-	float r = data[x * numeroCanales + z * (imageWidth * numeroCanales)];
+	float b = data[x * numeroCanales + z * (imageWidth * numeroCanales)];
 	float g = data[x * numeroCanales + z * (imageWidth * numeroCanales) + 1];
-	float b = data[x * numeroCanales + z * (imageWidth * numeroCanales) + 2];
+	float r = data[x * numeroCanales + z * (imageWidth * numeroCanales) + 2];
 	float height = b * g * r;
 	height /= MAX_PIXEL_COLOR;
 	//height -= 0.5;
