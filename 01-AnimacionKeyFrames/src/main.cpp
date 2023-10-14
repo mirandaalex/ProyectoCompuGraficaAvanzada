@@ -58,6 +58,7 @@ Box boxCesped;
 Box boxWalls;
 Box boxHighway;
 Box boxLandingPad;
+Box esponja;
 Sphere esfera1(10, 10);
 // Models complex instances
 Model modelRock;
@@ -244,6 +245,9 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 
 	boxLandingPad.init();
 	boxLandingPad.setShader(&shaderMulLighting);
+
+	esponja.init();
+	esponja.setShader(&shaderMulLightingMt);
 
 	esfera1.init();
 	esfera1.setShader(&shaderMulLightingMt);
@@ -530,6 +534,7 @@ void destroy() {
 	boxWalls.destroy();
 	boxHighway.destroy();
 	boxLandingPad.destroy();
+	esponja.destroy();
 	esfera1.destroy();
 
 	// Custom objects Delete
@@ -1062,6 +1067,19 @@ void applicationLoop() {
 		esfera1.setPosition(glm::vec3(3.0f, 2.0f, 10.0f));
 		//esfera1.enableWireMode();
 		esfera1.render();
+		//esfera1.enableFillMode();
+		
+		//Esponja
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureSpongeID);
+		shaderMulLightingMt.setInt("texture2", 0);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, textureWaterID);
+		shaderMulLightingMt.setInt("texture1", 3);
+		esponja.setScale(glm::vec3(2.0, 2.0, 2.0));
+		esponja.setPosition(glm::vec3(5.0f, 2.0f, 14.0f));
+		//esfera1.enableWireMode();
+		esponja .render();
 		//esfera1.enableFillMode();
 
 		/******************************************

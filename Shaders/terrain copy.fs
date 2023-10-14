@@ -52,29 +52,35 @@ uniform DirectionalLight directionalLight;
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 
-uniform vec3 viewPos;  
-uniform sampler2D texture1;
-uniform sampler2D texture2;
+uniform vec3 viewPos;
+  
+uniform vec2 scaleUV;  
+  
+uniform sampler2D backgroundTexture;
 
 vec3 calculateDirectionalLight(Light light, vec3 direction){
-	vec4 textura1 = texture(texture1, our_uv);
-	vec4 textura2 = texture(texture2, our_uv);
-	vec4 textureFinal = mix(textura1,textura2,0.3);
+	vec2 tiledCoords = our_uv;
+	if(tiledCoords.x != 0 && tiledCoords.y != 0)
+		tiledCoords = scaleUV * tiledCoords;
+	
+	vec4 backgroundTextureColor = texture(backgroundTexture, tiledCoords);
+	vec4 totalColor = backgroundTextureColor;
+
 	// Ambient
-    vec3 ambient  = light.ambient * vec3(textureFinal);
+    vec3 ambient  = light.ambient * vec3(totalColor);
   	
     // Diffuse 
     vec3 normal = normalize(our_normal);
     vec3 lightDir = normalize(-direction);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse  = light.diffuse * (diff * vec3(textureFinal));
+    vec3 diffuse  = light.diffuse * (diff * vec3(totalColor));
     
     // Specular
     float specularStrength = 0.5f;
     vec3 viewDir = normalize(viewPos - fragPos);
     vec3 reflectDir = reflect(-lightDir, normal);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
-    vec3 specular = light.specular * (spec * vec3(textureFinal));  
+    vec3 specular = light.specular * (spec * vec3(totalColor));  
         
     return (ambient + diffuse + specular);
 }
@@ -106,8 +112,5 @@ vec3 calculateSpotLights(){
 
 void main()
 {
-	vec4 colorText = texture(texture1, our_uv);
-	if(colorText.a < 0.1)
-		discard;
-    color = vec4(calculateDirectionalLight(directionalLight.light, directionalLight.direction) + calculatePointLights() + calculateSpotLights(), colorText.a);
+    color = vec4(calculateDirectionalLight(directionalLight.light, directionalLight.direction) + calculatePointLights() + calculateSpotLights(), 1.0);
 }

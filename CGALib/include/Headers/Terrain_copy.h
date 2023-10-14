@@ -5,6 +5,7 @@
  *      Author: rey
  */
 
+/*
 #ifndef TERRAIN_H_
 #define TERRAIN_H_
 
@@ -57,5 +58,6 @@ private:
 	glm::vec3 barryCentric(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3,
 			glm::vec2 pos, glm::vec3 n1, glm::vec3 n2, glm::vec3 n3);
 };
+*/
 
-#endif /* SRC_TERRAIN_H_ */
+//#endif /* SRC_TERRAIN_H_ */
