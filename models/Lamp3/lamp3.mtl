@@ -1,0 +1,23 @@
+# Blender 3.6.5 MTL File: 'lamp3.blend'
+# www.blender.org
+
+newmtl Northern_Balancer_mat1_mtl_1
+Ns 10.000005
+Ka 1.000000 1.000000 1.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Bump dcmap_Northern_Balancer_rgloss_bump.jpg
+
+newmtl Northern_Balancer_mat1_mtl_2
+Ns 10.000005
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 0.643100
+illum 1
