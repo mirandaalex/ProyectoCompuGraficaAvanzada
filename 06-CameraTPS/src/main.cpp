@@ -21,6 +21,7 @@
 #include "Headers/Cylinder.h"
 #include "Headers/Box.h"
 #include "Headers/FirstPersonCamera.h"
+#include "Headers/ThirdPersonCamera.h"
 
 //GLM include
 #define GLM_FORCE_RADIANS
@@ -53,7 +54,10 @@ Shader shaderMulLighting;
 //Shader para el terreno
 Shader shaderTerrain;
 
-std::shared_ptr<FirstPersonCamera> camera(new FirstPersonCamera());
+std::shared_ptr<FirstPersonCamera> camera1p(new FirstPersonCamera());
+std::shared_ptr<ThirdPersonCamera> camera3p(new ThirdPersonCamera());
+float distanceFromTarget = 7.0f;
+int selectedCamera1p = false;
 
 Sphere skyboxSphere(20, 20);
 Box boxCesped;
@@ -107,6 +111,8 @@ Model cowboyModelAnimate;
 Model guardianModelAnimate;
 // Cybog
 Model cyborgModelAnimate;
+//Luchador
+Model luchadorModelAnimate;
 // Terrain model instance
 Terrain terrain(-1, -1, 200, 8, "../Textures/heightmap.png");
 
@@ -145,8 +151,13 @@ glm::mat4 modelMatrixMayow = glm::mat4(1.0f);
 glm::mat4 modelMatrixCowboy = glm::mat4(1.0f);
 glm::mat4 modelMatrixGuardian = glm::mat4(1.0f);
 glm::mat4 modelMatrixCyborg = glm::mat4(1.0f);
+glm::mat4 modelMatrixLuchador = glm::mat4(1.0f);
 
+int animationLuchadorIndex = 0;
 int animationMayowIndex = 1;
+float mayowVel = 0.05;
+float charactersRunMult = 3.0;
+float luchadorVel = 0.05;
 float rotDartHead = 0.0, rotDartLeftArm = 0.0, rotDartLeftHand = 0.0, rotDartRightArm = 0.0, rotDartRightHand = 0.0, rotDartLeftLeg = 0.0, rotDartRightLeg = 0.0;
 float rotBuzzHead = 0.0, rotBuzzLeftarm = 0.0, rotBuzzLeftForeArm = 0.0, rotBuzzLeftHand = 0.0;
 int modelSelected = 0;
@@ -224,6 +235,7 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action,
 		int mode);
 void mouseCallback(GLFWwindow *window, double xpos, double ypos);
 void mouseButtonCallback(GLFWwindow *window, int button, int state, int mod);
+void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 void init(int width, int height, std::string strTitle, bool bFullScreen);
 void destroy();
 bool processInput(bool continueApplication = true);
@@ -265,6 +277,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetCursorPosCallback(window, mouseCallback);
 	glfwSetMouseButtonCallback(window, mouseButtonCallback);
+	glfwSetScrollCallback(window, scrollCallback);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
 	// Init glew
@@ -400,12 +413,28 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	cyborgModelAnimate.loadModel("../models/cyborg/cyborg.fbx");
 	cyborgModelAnimate.setShader(&shaderMulLighting);
 
+	//Luchador
+	luchadorModelAnimate.loadModel("../models/Luchador/luchador_animado.fbx");
+	luchadorModelAnimate.setShader(&shaderMulLighting);
+
 	// Terreno
 	terrain.init();
 	terrain.setShader(&shaderTerrain);
-
-	camera->setPosition(glm::vec3(0.0, 3.0, 4.0));
+	if (selectedCamera1p){
+		//Configuraciones para tercera persona
+		camera3p->setSensitivity(1.0f);
+		camera3p->setDistanceFromTarget(distanceFromTarget);
+		
+	}else
+	{
+		//Esta linea solo sirve para una camara en primera persona
+		camera1p->setPosition(glm::vec3(0.0, 3.0, 4.0));
+		/* code */
+	}
 	
+
+
+
 	// Carga de texturas para el skybox
 	Texture skyboxTexture = Texture("");
 	glGenTextures(1, &skyboxTextureID);
@@ -700,6 +729,7 @@ void destroy() {
 	cowboyModelAnimate.destroy();
 	guardianModelAnimate.destroy();
 	cyborgModelAnimate.destroy();
+	luchadorModelAnimate.destroy();
 
 	// Terrains objects Delete
 	terrain.destroy();
@@ -762,21 +792,45 @@ void mouseButtonCallback(GLFWwindow *window, int button, int state, int mod) {
 	}
 }
 
+void scrollCallback(GLFWwindow *window, double xoffset, double yoffset){
+	distanceFromTarget -= yoffset;
+	camera3p->setDistanceFromTarget(distanceFromTarget);
+}
+
 bool processInput(bool continueApplication) {
 	if (exitApp || glfwWindowShouldClose(window) != 0) {
 		return false;
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera->moveFrontCamera(true, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera->moveFrontCamera(false, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera->moveRightCamera(false, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera->moveRightCamera(true, deltaTime);
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-		camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
+	//Cambiando de camara
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+		selectedCamera1p = !selectedCamera1p;
+
+
+	if (selectedCamera1p){
+		
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			camera1p->moveFrontCamera(true, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			camera1p->moveFrontCamera(false, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			camera1p->moveRightCamera(false, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			camera1p->moveRightCamera(true, deltaTime);
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+			camera1p->mouseMoveCamera(offsetX, offsetY, deltaTime);
+	}else{
+		
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT == GLFW_PRESS))
+		{
+			camera3p->mouseMoveCamera(offsetX,0,deltaTime);
+		}
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT == GLFW_PRESS))
+		{
+			camera3p->mouseMoveCamera(0,offsetY,deltaTime);
+		}
+	}
+	
 	offsetX = 0;
 	offsetY = 0;
 
@@ -784,7 +838,7 @@ bool processInput(bool continueApplication) {
 	if (enableCountSelected && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS){
 		enableCountSelected = false;
 		modelSelected++;
-		if(modelSelected > 4)
+		if(modelSelected > 5)
 			modelSelected = 0;
 		if(modelSelected == 1)
 			fileName = "../animaciones/animation_dart_joints.txt";
@@ -912,7 +966,7 @@ bool processInput(bool continueApplication) {
 	else if (modelSelected == 2 && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 		modelMatrixBuzz = glm::translate(modelMatrixBuzz, glm::vec3(0.0, 0.0, -0.02));
 
-	// Controles de mayow
+	// Controles de mayow rotacion
 	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
 		modelMatrixMayow = glm::rotate(modelMatrixMayow, 0.02f, glm::vec3(0, 1, 0));
 		animationMayowIndex = 0;
@@ -920,21 +974,58 @@ bool processInput(bool continueApplication) {
 		modelMatrixMayow = glm::rotate(modelMatrixMayow, -0.02f, glm::vec3(0, 1, 0));
 		animationMayowIndex = 0;
 	}
-	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
-		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, 0.02));
+	
+	// Controles de mayow traslacion
+	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && glfwGetKey(window,GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){		
+		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, mayowVel*charactersRunMult));
+		animationMayowIndex = 0;
+	}
+	else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && glfwGetKey(window,GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
+		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, -mayowVel*charactersRunMult));
+		animationMayowIndex = 0;
+	}else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){		
+		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, mayowVel));
 		animationMayowIndex = 0;
 	}
 	else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
-		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, -0.02));
+		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, -mayowVel));
 		animationMayowIndex = 0;
 	}
-
+	// Controles de Luchador rotacion
+	if (modelSelected == 5 && glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+		modelMatrixLuchador = glm::rotate(modelMatrixLuchador, 0.02f, glm::vec3(0, 1, 0));
+		animationLuchadorIndex = 1;
+	} else if (modelSelected == 5 && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+		modelMatrixLuchador = glm::rotate(modelMatrixLuchador, -0.02f, glm::vec3(0, 1, 0));
+		animationLuchadorIndex = 1;
+	}
+	// Controles de Luchador traslacion
+	if (modelSelected == 5 && glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && glfwGetKey(window,GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
+		modelMatrixLuchador = glm::translate(modelMatrixLuchador, glm::vec3(0.0, 0.0, luchadorVel*charactersRunMult));
+		animationLuchadorIndex = 1;
+	}
+	else if (modelSelected == 5 && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && glfwGetKey(window,GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
+		modelMatrixLuchador = glm::translate(modelMatrixLuchador, glm::vec3(0.0, 0.0, -luchadorVel*charactersRunMult));
+		animationLuchadorIndex = 1;
+	}
+	else if (modelSelected == 5 && glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+		modelMatrixLuchador = glm::translate(modelMatrixLuchador, glm::vec3(0.0, 0.0, luchadorVel));
+		animationLuchadorIndex = 1;
+	}
+	else if (modelSelected == 5 && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+		modelMatrixLuchador = glm::translate(modelMatrixLuchador, glm::vec3(0.0, 0.0, -luchadorVel));
+		animationLuchadorIndex = 1;
+	}
 	glfwPollEvents();
 	return continueApplication;
 }
 
 void applicationLoop() {
 	bool psi = true;
+
+	float angleTarget;
+	glm::vec3 axis;
+	glm::vec3 target;
 
 	modelMatrixEclipse = glm::translate(modelMatrixEclipse, glm::vec3(27.5, 0, 30.0));
 	modelMatrixEclipse = glm::rotate(modelMatrixEclipse, glm::radians(180.0f), glm::vec3(0, 1, 0));
@@ -968,6 +1059,8 @@ void applicationLoop() {
 
 	modelMatrixCyborg = glm::translate(modelMatrixCyborg, glm::vec3(5.0f, 0.05, 0.0f));
 
+	modelMatrixLuchador = glm::translate(modelMatrixLuchador, glm::vec3(10.0f, 0.05, 0.0f));
+
 	// Variables to interpolation key frames
 	fileName = "../animaciones/animation_dart_joints.txt";
 	keyFramesDartJoints = getKeyRotFrames(fileName);
@@ -984,7 +1077,8 @@ void applicationLoop() {
 			continue;
 		}
 		lastTime = currTime;
-		TimeManager::Instance().CalculateFrameRate(true);
+		//TimeManager::Instance().CalculateFrameRate(true);
+		TimeManager::Instance().CalculateFrameRate(false);
 		deltaTime = TimeManager::Instance().DeltaTime;
 		psi = processInput(true);
 
@@ -997,7 +1091,51 @@ void applicationLoop() {
 
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f),
 				(float) screenWidth / (float) screenHeight, 0.01f, 100.0f);
-		glm::mat4 view = camera->getViewMatrix();
+		
+		//vista de la camara dependiendo de la camara seleccionada
+		glm::mat4 view;
+
+		if(!selectedCamera1p){
+			if( modelSelected == 5){
+				target = modelMatrixLuchador[3];
+				angleTarget = glm::angle(glm::quat_cast(modelMatrixLuchador));
+				axis = glm::axis(glm::quat_cast(modelMatrixLuchador));
+			}
+			else if (modelSelected ==1)
+			{
+				target = modelMatrixDart[3];
+				target.y += 2.0f;
+				angleTarget = glm::angle(glm::quat_cast(modelMatrixDart));
+				axis = glm::axis(glm::quat_cast(modelMatrixDart));
+			}else 
+			{
+				target = modelMatrixMayow[3];
+				angleTarget = glm::angle(glm::quat_cast(modelMatrixMayow));
+				axis = glm::axis(glm::quat_cast(modelMatrixMayow));
+			}
+			//Correcciones a angulos negativos
+			if (std::isnan(angleTarget))
+				angleTarget =0;
+			if (axis.y < 0)
+				angleTarget *= -1;
+			//Corrigiendo angulo de camara buzz
+			if (modelSelected==1)
+				angleTarget -= glm::radians(90.0f);
+
+
+			camera3p->setAngleTarget(angleTarget);
+			camera3p->setCameraTarget(target);
+			camera3p->updateCamera();
+			view = camera3p->getViewMatrix();
+
+
+		}else{
+			view = camera1p->getViewMatrix();
+			
+		}
+		
+		
+		
 
 		// Settea la matriz de vista y projection al shader con solo color
 		shader.setMatrix4("projection", 1, false, glm::value_ptr(projection));
@@ -1022,14 +1160,17 @@ void applicationLoop() {
 		/*******************************************
 		 * Propiedades Luz direccional
 		 *******************************************/
-		shaderMulLighting.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
-		shaderMulLighting.setVectorFloat3("directionalLight.light.ambient", glm::value_ptr(glm::vec3(0.05, 0.05, 0.05)));
+
+		glm::vec3 cameraPoss = selectedCamera1p ? camera1p->getPosition() : camera3p->getPosition();
+		
+		shaderMulLighting.setVectorFloat3("viewPos", glm::value_ptr(cameraPoss));
+		shaderMulLighting.setVectorFloat3("directionalLight.light.ambient", glm::value_ptr(glm::vec3(0.5, 0.5, 0.5)));
 		shaderMulLighting.setVectorFloat3("directionalLight.light.diffuse", glm::value_ptr(glm::vec3(0.3, 0.3, 0.3)));
 		shaderMulLighting.setVectorFloat3("directionalLight.light.specular", glm::value_ptr(glm::vec3(0.4, 0.4, 0.4)));
 		shaderMulLighting.setVectorFloat3("directionalLight.direction", glm::value_ptr(glm::vec3(-1.0, 0.0, 0.0)));
 
-		shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
-		shaderTerrain.setVectorFloat3("directionalLight.light.ambient", glm::value_ptr(glm::vec3(0.05, 0.05, 0.05)));
+		shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(cameraPoss));
+		shaderTerrain.setVectorFloat3("directionalLight.light.ambient", glm::value_ptr(glm::vec3(0.5, 0.5, 0.5)));
 		shaderTerrain.setVectorFloat3("directionalLight.light.diffuse", glm::value_ptr(glm::vec3(0.3, 0.3, 0.3)));
 		shaderTerrain.setVectorFloat3("directionalLight.light.specular", glm::value_ptr(glm::vec3(0.4, 0.4, 0.4)));
 		shaderTerrain.setVectorFloat3("directionalLight.direction", glm::value_ptr(glm::vec3(-1.0, 0.0, 0.0)));
@@ -1306,6 +1447,8 @@ void applicationLoop() {
 		modelMatrixLeftHand = glm::translate(modelMatrixLeftHand, glm::vec3(-0.416066, -0.587046, -0.076258));
 		modelBuzzLeftHand.render(modelMatrixLeftHand);
 
+		
+
 		/*****************************************
 		 * Objetos animados por huesos
 		 * **************************************/
@@ -1338,6 +1481,21 @@ void applicationLoop() {
 		modelMatrixCyborgBody = glm::scale(modelMatrixCyborgBody, glm::vec3(0.009f));
 		cyborgModelAnimate.setAnimationIndex(1);
 		cyborgModelAnimate.render(modelMatrixCyborgBody);
+
+		/**Luchador*/
+		glm::vec3 ejey_Luchadro = glm::normalize(terrain.getNormalTerrain(modelMatrixLuchador[3][0], modelMatrixLuchador[3][2]));
+		glm::vec3 ejex_Luchadro = glm::vec3(modelMatrixLuchador[0]);
+		glm::vec3 ejez_Luchadro = glm::normalize(glm::cross(ejex_Luchadro, ejey_Luchadro));
+		ejex_Luchadro = glm::normalize(glm::cross(ejey_Luchadro, ejez_Luchadro));
+		modelMatrixLuchador[0] = glm::vec4(ejex_Luchadro, 0.0);
+		modelMatrixLuchador[1] = glm::vec4(ejey_Luchadro, 0.0);
+		modelMatrixLuchador[2] = glm::vec4(ejez_Luchadro, 0.0);
+		modelMatrixLuchador[3][1] = terrain.getHeightTerrain(modelMatrixLuchador[3][0],modelMatrixLuchador[3][2]);
+		glm::mat4 modelMatrixLuchadorBody = glm::mat4(modelMatrixLuchador);
+		modelMatrixLuchadorBody = glm::scale(modelMatrixLuchadorBody, glm::vec3(0.009f));
+		luchadorModelAnimate.setAnimationIndex(animationLuchadorIndex);
+		luchadorModelAnimate.render(modelMatrixLuchadorBody);
+		animationLuchadorIndex = 0;
 
 		/*******************************************
 		 * Skybox
