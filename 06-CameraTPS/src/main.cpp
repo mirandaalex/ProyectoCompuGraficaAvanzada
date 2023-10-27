@@ -420,17 +420,14 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	// Terreno
 	terrain.init();
 	terrain.setShader(&shaderTerrain);
-	if (selectedCamera1p){
-		//Configuraciones para tercera persona
-		camera3p->setSensitivity(1.0f);
-		camera3p->setDistanceFromTarget(distanceFromTarget);
-		
-	}else
-	{
-		//Esta linea solo sirve para una camara en primera persona
-		camera1p->setPosition(glm::vec3(0.0, 3.0, 4.0));
-		/* code */
-	}
+	
+	//Configuraciones para tercera persona
+	camera3p->setSensitivity(1.0f);
+	camera3p->setDistanceFromTarget(distanceFromTarget);
+	
+	//Configuraciones para primera persona
+	camera1p->setPosition(glm::vec3(0.0, 3.0, 4.0));
+	
 	
 
 
