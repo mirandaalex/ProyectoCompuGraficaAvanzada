@@ -84,6 +84,8 @@ Model modelDartLegoRightLeg;
 
 GLuint textureCespedID, textureWallID, textureWindowID, textureHighwayID, textureLandingPadID;
 GLuint skyboxTextureID;
+//Modelo Proy
+Box minecard;
 
 GLenum types[6] = {
 GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -111,6 +113,9 @@ glm::mat4 modelMatrixHeli = glm::mat4(1.0f);
 glm::mat4 modelMatrixLambo = glm::mat4(1.0);
 glm::mat4 modelMatrixAircraft = glm::mat4(1.0);
 glm::mat4 modelMatrixDart = glm::mat4(1.0f);
+
+//Model matrix minecard
+glm::mat4 modelMatrixMinecard = glm::mat4(0);
 
 float rotDartHead = 0.0, rotDartLeftArm = 0.0, rotDartLeftHand = 0.0, rotDartRightArm = 0.0, rotDartRightHand = 0.0, rotDartLeftLeg = 0.0, rotDartRightLeg = 0.0;
 int modelSelected = 0;
@@ -287,6 +292,10 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	modelDartLegoLeftLeg.setShader(&shaderMulLighting);
 	modelDartLegoRightLeg.loadModel("../models/LegoDart/LeoDart_right_leg.obj");
 	modelDartLegoRightLeg.setShader(&shaderMulLighting);
+
+	//Proyecto minecard
+	minecard.init();
+	minecard.setShader(&shaderMulLighting);
 
 	camera->setPosition(glm::vec3(0.0, 3.0, 4.0));
 	
@@ -493,6 +502,9 @@ void destroy() {
 	modelLamboRightDor.destroy();
 	modelRock.destroy();
 
+	//Proyecto minecard
+	minecard.destroy();
+
 	// Textures Delete
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDeleteTextures(1, &textureCespedID);
@@ -569,7 +581,7 @@ bool processInput(bool continueApplication) {
 	if (enableCountSelected && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS){
 		enableCountSelected = false;
 		modelSelected++;
-		if(modelSelected > 2)
+		if(modelSelected > 3)
 			modelSelected = 0;
 		if(modelSelected == 1)
 			fileName = "../animaciones/animation_dart_joints.txt";
@@ -976,6 +988,23 @@ void applicationLoop() {
 		modelDartLegoRightLeg.render(modelMatrixDartRightLeg);
 		// Se regresa el cull faces IMPORTANTE para la capa
 		glEnable(GL_CULL_FACE);
+
+		//Proyecto minecard
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureWindowID);
+		shaderMulLighting.setInt("texture1", 0);
+		shaderMulLighting.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(2.0, 2.0)));
+		
+		glm::mat4 modelMatrixMinecardBody = glm::mat4(modelMatrixMinecard);
+		modelMatrixMinecardBody = glm::scale(modelMatrixMinecardBody,glm::vec3(3.0));
+		modelMatrixMinecardBody = glm::translate(modelMatrixAircraft,glm::vec3(0.0,0.0,0.0));
+
+		esfera1.setScale(glm::vec3(3.0, 3.0, 3.0));
+		esfera1.setPosition(glm::vec3(modelMatrixMinecardBody[3]));
+
+		minecard.render();
+
+		glBindTexture(GL_TEXTURE_2D, 0);
 
 		/*******************************************
 		 * Skybox
