@@ -240,3 +240,8 @@ std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat,
 bool Model::rayPicking(glm::vec3 init, glm::vec3 end, glm::vec3 &intersection) {
 	return false;
 }
+
+
+void Model::setScaleAABB(glm::vec3 scale){
+	this->aabb.maxs.y *= scale.y;
+}

@@ -56,6 +56,7 @@ public:
 	void setAnimationIndex(int animationIndex){
 		this->animationIndex = animationIndex;
 	}
+	void setScaleAABB(glm::vec3 scale);
 private:
 	void processNode(aiNode* node, const aiScene* scene);
 	Mesh * processMesh(aiMesh* mesh, const aiScene* scene);

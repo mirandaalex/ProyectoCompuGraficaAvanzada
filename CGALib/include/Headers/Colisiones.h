@@ -129,6 +129,8 @@ bool testSphereOBox(AbstractModel::SBB sbb, AbstractModel::OBB obb){
 		return true;
 	return false;
 }
+
+
 bool testOBBOBB(AbstractModel::OBB a, AbstractModel::OBB b){
 	float EPSILON = 0.0001;
 	float ra, rb;
