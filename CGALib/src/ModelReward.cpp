@@ -1,24 +1,39 @@
 #include "Headers/ModelReward.h"
 
+/*************************** Audio Init ************************************************/
+
+
 
 
 /*************************** Init Model ************************************************/
 ModelReward::ModelReward(std::string modelPath, glm::vec3 initPoss)
 {
+    
     modelMatrix[3].x = initalPoss.x;
     modelMatrix[3].y = initalPoss.y;
     modelMatrix[3].z = initalPoss.z;
     model = new Model();
     path=modelPath;
+
+    //particulas
+    particle = new ParticlesModel(modelMatrix);
+   
+
+    
+
 }
 ModelReward::ModelReward(std::string modelPath)
 {
     model = new Model();
     path=modelPath;
+    //particulas
+    particle = new ParticlesModel(modelMatrix);
 }
 ModelReward::ModelReward(Model &vmodel)
 {
     model = &vmodel;
+    //particulas
+    particle = new ParticlesModel(modelMatrix);
     
 }
 
@@ -27,6 +42,7 @@ void ModelReward::LoadModelShader(Shader * shaderMulLighting)
     if (!path.empty())  
         model->loadModel(path);
 	model->setShader(shaderMulLighting);
+    particle->setShader();
 }
 
 
@@ -54,11 +70,12 @@ float ModelReward::getCurrentRotation(){
 
 void ModelReward::setTerrain(Terrain &newTerreno){
     terreno = &newTerreno;
+    particle->setTerrain(newTerreno);
     //modelMatrix[3][1] = terreno->getHeightTerrain(modelMatrix[3][0],modelMatrix[3][2]);
 }
 
 /******************************* RENDER ****************************************************************/
-void ModelReward::render(){
+void ModelReward::render(glm::mat4 proj, glm::mat4 view){
     move();
     interpolationMovementHandler();
     movementDelayHandler();
@@ -68,6 +85,7 @@ void ModelReward::render(){
     modelMatrixBoddy = glm::rotate(modelMatrixBoddy,rotation,glm::vec3(0,1,0)); 
     //model->enableWireMode();
     model->render(modelMatrixBoddy);
+    particle->loop(proj,view);
 }
 
 

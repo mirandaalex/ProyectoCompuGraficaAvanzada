@@ -38,6 +38,8 @@
 #include "Model.h"
 #include "TimeManager.h"
 #include "Terrain.h"
+#include "ParticlesModel.h"
+
 
 enum ModelRewardPoss{
   TOP,
@@ -66,8 +68,10 @@ private:
  
 
 public:
+    
     Model *model;
     glm::mat4 modelMatrix = glm::mat4(1.0f);
+    ParticlesModel *particle;
 
     //Init
     ModelReward(std::string path,glm::vec3 initPoss);
@@ -75,7 +79,7 @@ public:
     ModelReward(Model &vmodel);
     ~ModelReward();
     void destroy();
-    void render();
+    void render(glm::mat4 proj, glm::mat4 view);
     void LoadModelShader(Shader * shaderMulLighting);
     //Getter/Setter
     void setScale(float newScale);
@@ -87,6 +91,9 @@ public:
 
     //Movimiento
     void move();
+
+    //audio
+
 };
 
 

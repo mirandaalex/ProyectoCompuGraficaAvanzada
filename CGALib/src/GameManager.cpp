@@ -64,9 +64,16 @@ std::map<std::string, bool> GameManager::detectColision(){
             collidersOBB.begin(); jt != collidersOBB.end(); jt++) {
             if (it != jt && it->first.substr(0,6) !=jt->first.substr(0,6) &&
                 testOBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-                std::cout << "Hay colision entre " << it->first << " y el modelo " <<
-                    jt->first << std::endl;
+                // std::cout << "Hay colision entre " << it->first << " y el modelo " <<
+                //     jt->first << std::endl;
                 isColision = true;
+                if (it->first.substr(0,6) == "reward")
+                {
+                    
+                    int idx = std::stoi((it->first.substr(7)));
+                    rewards[idx]->particle->DrawParticles();
+                }
+                
             }
         }
         addOrUpdateCollisionDetection(collisionDetection, it->first, isColision);

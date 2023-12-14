@@ -74,7 +74,8 @@ Shader shaderDepth;
 // Shader para visualizar el buffer de profundidad
 Shader shaderViewDepth;
 //Shader para las particulas de fountain
-/*Shader shaderParticlesFountain;*/
+//pp
+Shader shaderParticlesFountain;
 
 std::shared_ptr<Camera> camera(new ThirdPersonCamera());
 float distanceFromTarget = 7.0;
@@ -253,10 +254,12 @@ std::vector<float> lamp2Orientation = {
 };
 
 // Blending model unsorted
+//pp
 std::map<std::string, glm::vec3> blendingUnsorted = {
 		{"aircraft", glm::vec3(10.0, 0.0, -17.5)},
 		{"lambo", glm::vec3(23.0, 0.0, 0.0)},
-		{"heli", glm::vec3(5.0, 10.0, -5.0)}
+		{"heli", glm::vec3(5.0, 10.0, -5.0)},
+		{"fountain", glm::vec3(0.0)}
 };
 
 double deltaTime;
@@ -311,6 +314,14 @@ std::vector<bool> sourcesPlay = {true, true, true};
 // Framesbuffers
 GLuint depthMap, depthMapFBO;
 
+//pp Def vars
+GLuint initVel, startTime;
+GLuint VAOParticles;
+GLuint nParticles = 200;
+double currTimeParticles, lastTimeParticles;
+
+
+
 // Se definen todos las funciones.
 void reshapeCallback(GLFWwindow *Window, int widthRes, int heightRes);
 void keyCallback(GLFWwindow *window, int key, int scancode, int action,
@@ -322,6 +333,71 @@ void initParticleBuffers();
 void init(int width, int height, std::string strTitle, bool bFullScreen);
 void destroy();
 bool processInput(bool continueApplication = true);
+
+
+// //pp
+void initParticleBuffers(){
+	glGenBuffers(1, &initVel);
+	glGenBuffers(1, &startTime);
+
+	int sizeVel = nParticles * 3 * sizeof(GL_FLOAT);
+	int sizeTime = nParticles  * sizeof(GL_FLOAT);
+	glBindBuffer(GL_ARRAY_BUFFER,initVel);
+	glBufferData(GL_ARRAY_BUFFER, sizeVel, NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER,startTime);
+	glBufferData(GL_ARRAY_BUFFER, sizeTime, NULL, GL_STATIC_DRAW);
+
+	glm::vec3 v(0.0f);
+	float velocity, theta, phi;
+	GLfloat *data = new GLfloat[nParticles*3];
+	for (unsigned int i = 0; i < nParticles; i++)
+	{
+		theta = glm::mix(0.0f, glm::two_pi<float>(),(float)rand()/RAND_MAX);
+		phi = glm::mix(0.0f, glm::two_pi<float>(),(float)rand()/RAND_MAX);
+		
+		v.x = sinf(theta) * cosf(phi);
+		v.y = cosf(theta);
+		v.z = sinf(theta) * sinf(phi);
+
+		velocity = glm::mix(0.6f, 0.8f, (float)rand()/RAND_MAX);
+		v = glm::normalize(v) * velocity;
+		data[3*i] = v.x;
+		data[3*i+1] = v.y;
+		data[3*i+2] = v.z;
+
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, initVel);
+	glBufferSubData(GL_ARRAY_BUFFER,0,sizeVel,data);
+	delete []data;
+	data = new GLfloat[nParticles];
+	float time = 0.0;
+	float rate = 0.00075f;
+	float duration = 10.0f;
+	for (unsigned int i = 0; i < nParticles; i++)
+	{
+		data[i] = time;
+		time += rate;
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, startTime);
+	glBufferSubData(GL_ARRAY_BUFFER,0,sizeTime,data);
+	delete []data;
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glGenVertexArrays(1,&VAOParticles);
+	glBindVertexArray(VAOParticles);
+	glBindBuffer(GL_ARRAY_BUFFER, initVel);
+	glVertexAttribPointer(0,3,GL_FLOAT, GL_FALSE,0,NULL);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, startTime);
+	glVertexAttribPointer(1,1,GL_FLOAT, GL_FALSE,0,NULL);
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+
+
+	
+	
+}
 
 // Implementacion de todas las funciones.
 void init(int width, int height, std::string strTitle, bool bFullScreen) {
@@ -385,7 +461,8 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	shaderTexture.initialize("../Shaders/texturizado.vs", "../Shaders/texturizado.fs");
 	shaderViewDepth.initialize("../Shaders/texturizado.vs", "../Shaders/texturizado_depth_view.fs");
 	shaderDepth.initialize("../Shaders/shadow_mapping_depth.vs", "../Shaders/shadow_mapping_depth.fs");
-	/*shaderParticlesFountain.initialize("../Shaders/particlesFountain.vs", "../Shaders/particlesFountain.fs");*/
+	//pp
+	shaderParticlesFountain.initialize("../Shaders/particlesFountain.vs", "../Shaders/particlesFountain.fs");
 
 	// Inicializacion de los objetos.
 	skyboxSphere.init();
@@ -827,6 +904,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 		std::cout << "Fallo la carga de textura" << std::endl;
 	textureScreen.freeImage(); // Liberamos memoria
 
+	//pp
 	// Definiendo la textura
 	Texture textureParticlesFountain("../Textures/bluewater.png");
 	textureParticlesFountain.loadImage(); // Cargar la textura
@@ -926,6 +1004,9 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//pp
+	initParticleBuffers();
 }
 
 void destroy() {
@@ -939,7 +1020,8 @@ void destroy() {
 	shaderMulLighting.destroy();
 	shaderSkybox.destroy();
 	shaderTerrain.destroy();
-	/*shaderParticlesFountain.destroy();*/
+	//pp
+	shaderParticlesFountain.destroy();
 
 	// Basic objects Delete
 	skyboxSphere.destroy();
@@ -1015,6 +1097,14 @@ void destroy() {
 	// Cube Maps Delete
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	glDeleteTextures(1, &skyboxTextureID);
+
+	//pp
+	glBindBuffer(GL_ARRAY_BUFFER,0);
+	glDeleteBuffers(1,&initVel);
+	glDeleteBuffers(1,&startTime);
+	glBindVertexArray(0);
+	glDeleteVertexArrays(1,&VAOParticles);
+
 }
 
 void reshapeCallback(GLFWwindow *Window, int widthRes, int heightRes) {
@@ -1658,7 +1748,8 @@ void renderAlphaScene(bool render = true){
 	blendingUnsorted.find("lambo")->second = glm::vec3(modelMatrixLambo[3]);
 	// Update the helicopter
 	blendingUnsorted.find("heli")->second = glm::vec3(modelMatrixHeli[3]);
-
+	//pp
+	blendingUnsorted.find("fountain")->second = glm::vec3(modelMatrixFountain[3]);
 	/**********
 	 * Sorter with alpha objects
 	 */
@@ -1712,6 +1803,38 @@ void renderAlphaScene(bool render = true){
 			modelMatrixHeliHeli = glm::translate(modelMatrixHeliHeli, glm::vec3(0.0, 0.0, 0.249548));
 			modelHeliHeli.render(modelMatrixHeliHeli);
 		}
+		//pp
+		else if (render && it->second.first.compare("fountain")==0)
+		{
+			glm::mat4 modelMatrixParticlesFountain = glm::mat4(1.0f);
+			modelMatrixParticlesFountain = glm::translate(modelMatrixParticlesFountain, it->second.second);
+			modelMatrixParticlesFountain[3][1] = terrain.getHeightTerrain(modelMatrixParticlesFountain[3][0],modelMatrixParticlesFountain[3][2])+4.2;
+			modelMatrixParticlesFountain = glm::scale(modelMatrixParticlesFountain, glm::vec3(3.0f));
+			currTimeParticles = TimeManager::Instance().GetTime();
+			if (currTimeParticles - lastTimeParticles > 10.0f)
+			{
+				lastTimeParticles = currTimeParticles;
+			}
+			glDepthMask(GL_FALSE);
+			glPointSize(10.0);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, textureParticleFountainID);
+			shaderParticlesFountain.turnOn();
+			shaderParticlesFountain.setFloat("Time", float(currTimeParticles- lastTimeParticles));
+			shaderParticlesFountain.setFloat("ParticleLifetime", 10.0f);
+			shaderParticlesFountain.setInt("ParticleTex", 0);
+			shaderParticlesFountain.setVectorFloat3("Gravity", glm::value_ptr(glm::vec3(0.0f, -0.2f, 0.0f)));
+			shaderParticlesFountain.setMatrix4("model",1,false, glm::value_ptr(modelMatrixParticlesFountain));
+
+			glBindVertexArray(VAOParticles);
+			glDrawArrays(GL_POINTS, 0, nParticles);
+
+			glDepthMask(GL_TRUE);
+			shaderParticlesFountain.turnOff();
+
+
+		}
+		
 	}
 	glEnable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
@@ -1873,10 +1996,11 @@ void applicationLoop() {
 		shaderTerrain.setMatrix4("lightSpaceMatrix", 1, false,
 				glm::value_ptr(lightSpaceMatrix));
 		// Settea la matriz de vista y projection al shader para el fountain
-		/*shaderParticlesFountain.setMatrix4("projection", 1, false,
+		//pp
+		shaderParticlesFountain.setMatrix4("projection", 1, false,
 				glm::value_ptr(projection));
 		shaderParticlesFountain.setMatrix4("view", 1, false,
-				glm::value_ptr(view));*/
+				glm::value_ptr(view));
 
 		/*******************************************
 		 * Propiedades de neblina

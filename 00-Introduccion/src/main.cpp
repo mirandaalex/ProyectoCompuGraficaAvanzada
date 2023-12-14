@@ -52,6 +52,7 @@ Shader shaderSkybox;
 //Shader con multiples luces
 Shader shaderMulLighting;
 
+
 std::shared_ptr<FirstPersonCamera> camera(new FirstPersonCamera());
 
 Sphere skyboxSphere(20, 20);
@@ -1141,7 +1142,7 @@ void applicationLoop() {
 		//Proyecto minecard
 		
 		minecard.render();
-		reward.render();
+		reward.render(projection, view);
 		gameManager.loop();
 		
 
