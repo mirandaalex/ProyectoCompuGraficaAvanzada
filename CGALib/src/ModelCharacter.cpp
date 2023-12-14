@@ -5,20 +5,20 @@
 /*************************** Init Model ************************************************/
 ModelCharacter::ModelCharacter(std::string modelPath)
 {
-    modelCharacter = new Model();
+    model = new Model();
     path=modelPath;
 }
-ModelCharacter::ModelCharacter(Model &model)
+ModelCharacter::ModelCharacter(Model &vmodel)
 {
-    modelCharacter = &model;
+    model = &vmodel;
     
 }
 
 void ModelCharacter::LoadModelShader(Shader * shaderMulLighting)
 {
     if (!path.empty())  
-        modelCharacter->loadModel(path);
-	modelCharacter->setShader(shaderMulLighting);
+        model->loadModel(path);
+	model->setShader(shaderMulLighting);
 }
 
 
@@ -57,7 +57,7 @@ void ModelCharacter::render(){
     modelMatrixBoddy = glm::scale(modelMatrixBoddy, scale);
     modelMatrixBoddy = glm::rotate(modelMatrixBoddy,rotation,glm::vec3(0,1,0)); 
 
-    modelCharacter->render(modelMatrixBoddy);
+    model->render(modelMatrixBoddy);
 }
 
 
@@ -117,7 +117,7 @@ void ModelCharacter::bendDown(){
         bending = true;
         bending_t0 = TimeManager::Instance().GetTime();
         this->scale.y = 0.1;
-        modelCharacter->setScaleAABB(glm::vec3(scaleModel));
+        model->setScaleAABB(glm::vec3(scaleModel));
         std::cout << "Shirnk" << std::endl;
     }
     
@@ -152,7 +152,7 @@ void ModelCharacter::interpolationMovementHandler(){
         
         bend= false;
         this->scale.y = 0.4;
-        modelCharacter->setScaleAABB(glm::vec3(1/scaleModel));
+        model->setScaleAABB(glm::vec3(1/scaleModel));
         std::cout << "No Shirnk " << scale.y <<std::endl;
     }
     
@@ -190,12 +190,12 @@ void ModelCharacter::movementDelayHandler(){
 
 /***********************Destroy****************************/
 void ModelCharacter::destroy(){
-    modelCharacter->destroy();
+    model->destroy();
 }
 
 ModelCharacter::~ModelCharacter()
 {
-	modelCharacter->destroy();
+	model->destroy();
 }
 
 
@@ -228,7 +228,7 @@ ModelCharacter::~ModelCharacter()
 //         bending = true;
 //         bending_t0 = TimeManager::Instance().GetTime();
 //         scale.y *= scaleModel;
-//         modelCharacter->setScaleAABB(glm::vec3(scaleModel));
+//         model->setScaleAABB(glm::vec3(scaleModel));
 //     }
     
     
@@ -256,7 +256,7 @@ ModelCharacter::~ModelCharacter()
 //     {
 //         bend = false;
 //         scale.y /= scaleModel;
-//         modelCharacter->setScaleAABB(glm::vec3(1/scaleModel));
+//         model->setScaleAABB(glm::vec3(1/scaleModel));
 //     }
     
 

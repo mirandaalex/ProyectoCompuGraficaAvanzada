@@ -5,8 +5,8 @@
  *      Author: Alex
  */
 
-#ifndef MODEL_PROY_H_
-#define MODEL_PROY_H_
+#ifndef REWARD_PROY_H_
+#define REWARD_PROY_H_
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
@@ -37,15 +37,14 @@
 
 #include "Model.h"
 #include "TimeManager.h"
-#include "Headers/Terrain.h"
+#include "Terrain.h"
 
-enum ModelPoss{
-  Left,
-  Center,
-  Right
+enum ModelRewardPoss{
+  TOP,
+  BOT
 };
 
-class DLL_PUBLIC ModelCharacter
+class DLL_PUBLIC ModelReward
 {
 private:
     /*Models
@@ -53,43 +52,28 @@ private:
     glm::mat4 modelMatrixGoal = glm::mat4(1.0f);
     glm::vec3 initalPoss = glm::vec3(0.0f);
     std::string path;
-    int animation_ix = 0;
     glm::vec3 scale = glm::vec3(1.0f);
     float rotation = 0.0f;
     //Movimiento
     void interpolationMovementHandler();
     void movementDelayHandler();
-    //movimiento lateral
-    ModelPoss position = Center;
-    float horizontalStride = 1.0f;
+    //movimiento 
+    ModelRewardPoss position = BOT;
     bool moving = false;
-    double time = 0.0;
-    double delay = 0.15;
+    float verticalStride = 0.2f;
     //salto
     Terrain *terreno;
-    bool jumping = false;
-    double v0 = 9.0;
-    double t0 = 0.0;
-    double h0;
-    double g = 14.5;
-    //agacharse
-    bool bending = false;
-    bool bend = false;
-    bool b_delay = false;
-    double bending_t0;
-    double bend_t0=0.0;
-    double bending_delay=1.0;
-    double bend_delay=0.2;
-    float scaleModel = 0.5;
+ 
 
 public:
     Model *model;
     glm::mat4 modelMatrix = glm::mat4(1.0f);
 
     //Init
-    ModelCharacter(std::string path);
-    ModelCharacter(Model &vmodel);
-    ~ModelCharacter();
+    ModelReward(std::string path,glm::vec3 initPoss);
+    ModelReward(std::string path);
+    ModelReward(Model &vmodel);
+    ~ModelReward();
     void destroy();
     void render();
     void LoadModelShader(Shader * shaderMulLighting);
@@ -102,11 +86,8 @@ public:
     void setTerrain(Terrain &newTerreno);
 
     //Movimiento
-    void moveLeft();
-    void moveRight();
-    void jump();
-    void bendDown();
+    void move();
 };
 
 
-#endif /* MODEL_PROY_H_ */
+#endif /* REWARD_PROY_H_ */

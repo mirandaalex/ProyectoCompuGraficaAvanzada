@@ -34,8 +34,11 @@
 #include "Headers/Model.h"
 
 #include "Headers/AnimationUtils.h"
-#include "Headers/ModelCharacter.h"
 #include "Headers/Terrain.h"
+// Incluye modelos del proyecto
+#include "Headers/ModelCharacter.h"
+#include "Headers/ModelReward.h"
+#include "Headers/GameManager.h"
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
 
 int screenWidth;
@@ -85,7 +88,6 @@ Model modelDartLegoRightLeg;
 
 GLuint textureCespedID, textureWallID, textureWindowID, textureHighwayID, textureLandingPadID;
 GLuint skyboxTextureID;
-//Modelo Proy
 //Shader terreno
 Shader shaderTerrain;
 GLuint textureTerrainRID;
@@ -93,7 +95,10 @@ GLuint textureTerrainGID;
 GLuint textureTerrainBID;
 GLuint textureTerrainBlendMapID;
 Terrain terrain(-1, -1, 200, 10, "../Textures/heightmap3.png");
+//Modelo Proyecto
 ModelCharacter minecard("../models/Minecraft/grass.fbx");
+ModelReward reward("../models/Minecraft/esmeralda.fbx", glm::vec3(1,1,1));
+GameManager gameManager(true);
 
 GLenum types[6] = {
 GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -306,6 +311,12 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	minecard.LoadModelShader(&shaderMulLighting);
 	minecard.setTerrain(terrain);
 	minecard.setScale(0.4f);
+	reward.LoadModelShader(&shaderMulLighting);
+	reward.setTerrain(terrain);
+	reward.setScale(1.0f);
+	gameManager.setShader(&shaderMulLighting);
+	gameManager.add(minecard);
+	gameManager.add(reward);
 
 	camera->setPosition(glm::vec3(0.0, 3.0, 4.0));
 	
@@ -592,6 +603,8 @@ void destroy() {
 	//Proyecto minecard
 	minecard.destroy();
 	terrain.destroy();
+	reward.destroy();
+	
 	// Textures Delete
 	glDeleteTextures(1, &textureTerrainBID);
 	glDeleteTextures(1, &textureTerrainGID);
@@ -1128,7 +1141,8 @@ void applicationLoop() {
 		//Proyecto minecard
 		
 		minecard.render();
-
+		reward.render();
+		gameManager.loop();
 		
 
 		/*******************************************
