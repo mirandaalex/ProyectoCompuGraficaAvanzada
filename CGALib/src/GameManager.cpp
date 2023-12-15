@@ -2,6 +2,7 @@
 
 
 GameManager::GameManager(){
+    
 
 }
 GameManager::~GameManager(){
@@ -21,8 +22,78 @@ void GameManager::setShader(Shader * shaderMulLighting){
 	boxCollider.setShader(shaderMulLighting);
 	boxCollider.setColor(color);
     shaderInit = true;
+    initAudio();
+}
+void GameManager::initAudio(){
+    alutInit(0, nullptr);
+	alListenerfv(AL_POSITION, listenerCharacterPos);
+	alListenerfv(AL_VELOCITY, listenerCharacterVel);
+	alListenerfv(AL_ORIENTATION, listenerCharacterOri);
+	alGetError(); // clear any error messages
+	if (alGetError() != AL_NO_ERROR) {
+		printf("- Error creating buffers !!\n");
+		exit(1);
+	}
+	else {
+		printf("init() - No errors yet.");
+	}
+	// Generate buffers, or else no sound will happen!
+	alGenBuffers(NUM_BUFFERS, buffer);
+	buffer[0] = alutCreateBufferFromFile("../sounds/pickup.wav");
+	int errorAlut = alutGetError();
+	if (errorAlut != ALUT_ERROR_NO_ERROR){
+		printf("- Error open files with alut %d !!\n", errorAlut);
+		exit(2);
+	}
+
+	alGetError(); /* clear error */
+	alGenSources(NUM_SOURCES, source);
+
+	if (alGetError() != AL_NO_ERROR) {
+		printf("- Error creating sources !!\n");
+		exit(2);
+	}
+	else {
+		printf("init - no errors after alGenSources\n");
+	}
+	alSourcef(source[0], AL_PITCH, 1.0f);
+	alSourcef(source[0], AL_GAIN, 3.0f);
+	alSourcefv(source[0], AL_POSITION, sourceEsmeraldPos);
+	alSourcefv(source[0], AL_VELOCITY, sourceEsmeraldVel);
+	alSourcei(source[0], AL_BUFFER, buffer[0]);
+	alSourcei(source[0], AL_LOOPING, AL_FALSE);
+	alSourcef(source[0], AL_MAX_DISTANCE, 2000);
+}
+void GameManager::playAudio(glm::mat4 esmeraldPoss){
+        sourceEsmeraldPos[0] = esmeraldPoss[3].x;
+		sourceEsmeraldPos[1] = esmeraldPoss[3].y;
+		sourceEsmeraldPos[2] = esmeraldPoss[3].z;
+		alSourcefv(source[0], AL_POSITION, sourceEsmeraldPos);
+
+		
+
+		// Listener for the Thris person camera
+		listenerCharacterPos[0] = player->modelMatrix[3].x;
+		listenerCharacterPos[1] = player->modelMatrix[3].y;
+		listenerCharacterPos[2] = player->modelMatrix[3].z;
+		alListenerfv(AL_POSITION, listenerCharacterPos);
+
+		glm::vec3 upModel = glm::normalize(player->modelMatrix[1]);
+		glm::vec3 frontModel = glm::normalize(player->modelMatrix[2]);
+
+		listenerCharacterOri[0] = frontModel.x;
+		listenerCharacterOri[1] = frontModel.y;
+		listenerCharacterOri[2] = frontModel.z;
+		listenerCharacterOri[3] = upModel.x;
+		listenerCharacterOri[4] = upModel.y;
+		listenerCharacterOri[5] = upModel.z;
+
+		alListenerfv(AL_ORIENTATION, listenerCharacterOri);
+        alSourcePlay(source[0]);
 
 }
+
+
 void GameManager::setDrawColiders(bool vColiders){
     drawColiders = vColiders;
 }
@@ -71,6 +142,8 @@ std::map<std::string, bool> GameManager::detectColision(){
                 {
                     
                     int idx = std::stoi((it->first.substr(7)));
+                    if(!(rewards[idx]->particle->showing))
+                        playAudio(rewards[idx]->modelMatrix);
                     rewards[idx]->particle->DrawParticles();
                 }
                 

@@ -42,6 +42,8 @@
 
 
 
+
+
 class DLL_PUBLIC ParticlesModel
 {
 private:
@@ -50,14 +52,13 @@ private:
     GLuint VAOParticles;
     GLuint nParticles = 200;
     double currTimeParticles, lastTimeParticles;
-    double particleslife = 5.0;
-    float particlessize = 10.0f;
+    double particleslife = 2.0;
+    float particlessize = 5.0f;
     float gravity = 0.4f;
     float vmin=0.4f;
     float vmax=0.6f;
     GLuint textureID;
     std::string texture;
-    bool showing = false;
     //poss
     glm::mat4* modelPoss;
     Terrain *terrain;
@@ -66,6 +67,7 @@ private:
     const std::string vertex_shader = "../Shaders/particlesFountain.vs";
     const std::string fragment_shader = "../Shaders/particlesFountain.fs";
 public:
+    bool showing = false;
 
     //Init
     ParticlesModel(glm::mat4& model);

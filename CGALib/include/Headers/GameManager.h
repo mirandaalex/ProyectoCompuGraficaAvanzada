@@ -42,7 +42,29 @@
 #include "ModelCharacter.h"
 #include "ModelReward.h"
 #include "Box.h"
+#include <AL/alut.h>
 
+#define NUM_BUFFERS 1
+#define NUM_SOURCES 1
+#define NUM_ENVIRONMENTS 1
+// Listener
+ALfloat listenerCharacterPos[] = { 0.0, 0.0, 4.0 };
+ALfloat listenerCharacterVel[] = { 0.0, 0.0, 0.0 };
+ALfloat listenerCharacterOri[] = { 0.0, 0.0, 1.0, 0.0, 1.0, 0.0 };
+// Source 0
+ALfloat sourceEsmeraldPos[] = { -2.0, 0.0, 0.0 };
+ALfloat sourceEsmeraldVel[] = { 0.0, 0.0, 0.0 };
+
+// Buffers
+ALuint buffer[NUM_BUFFERS];
+ALuint source[NUM_SOURCES];
+ALuint environment[NUM_ENVIRONMENTS];
+// Configs
+ALsizei size, freq;
+ALenum format;
+ALvoid *data;
+int ch;
+ALboolean loop;
 
 
 class DLL_PUBLIC GameManager
@@ -55,6 +77,9 @@ private:
   Box boxCollider;
   glm::vec4 color;
   bool shaderInit=false;
+
+  //audio
+  
 public:
 
     //Init
@@ -63,6 +88,8 @@ public:
     GameManager(bool vDrawColiders, glm::vec4 vcolor);
     ~GameManager();
     void setShader(Shader * shaderMulLighting);
+    void initAudio();
+    void playAudio(glm::mat4 esmeraldPoss);
     void setDrawColiders(bool);
     void add(ModelCharacter &ply1);
     void add(ModelReward &rw);

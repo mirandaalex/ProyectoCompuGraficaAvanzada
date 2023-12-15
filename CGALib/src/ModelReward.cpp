@@ -76,7 +76,7 @@ void ModelReward::setTerrain(Terrain &newTerreno){
 
 /******************************* RENDER ****************************************************************/
 void ModelReward::render(glm::mat4 proj, glm::mat4 view){
-    move();
+    moveTB();
     interpolationMovementHandler();
     movementDelayHandler();
     glm::mat4 modelMatrixBoddy = glm::mat4(modelMatrix);
@@ -91,7 +91,13 @@ void ModelReward::render(glm::mat4 proj, glm::mat4 view){
 
 
 /************************ Movement ***********************************************************************/
-void ModelReward::move(){
+void ModelReward::move(glm::vec3 move){
+    modelMatrix[3][0] = move.x;
+    modelMatrix[3][1] = move.y;
+    modelMatrix[3][2] = move.z;
+}
+
+void ModelReward::moveTB(){
     if (position == TOP && moving==false)
     {
         modelMatrixGoal = glm::translate(modelMatrixGoal, glm::vec3(0.0 ,-verticalStride,0.0 ));

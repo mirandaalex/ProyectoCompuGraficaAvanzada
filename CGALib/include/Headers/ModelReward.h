@@ -90,7 +90,8 @@ public:
     void setTerrain(Terrain &newTerreno);
 
     //Movimiento
-    void move();
+    void move(glm::vec3 move);
+    void moveTB();
 
     //audio
 

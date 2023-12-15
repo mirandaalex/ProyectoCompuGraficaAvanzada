@@ -49,6 +49,7 @@
 #include "Headers/ShadowBox.h"
 
 // OpenAL include
+//aa
 #include <AL/alut.h>
 
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
@@ -283,6 +284,7 @@ float rotWheelsX = 0.0;
 float rotWheelsY = 0.0;
 
 // OpenAL Defines
+//aa
 #define NUM_BUFFERS 3
 #define NUM_SOURCES 3
 #define NUM_ENVIRONMENTS 1
@@ -927,6 +929,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	/*******************************************
 	 * OpenAL init
 	 *******************************************/
+	//aa
 	alutInit(0, nullptr);
 	alListenerfv(AL_POSITION, listenerPos);
 	alListenerfv(AL_VELOCITY, listenerVel);
@@ -941,8 +944,8 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	}
 	// Generate buffers, or else no sound will happen!
 	alGenBuffers(NUM_BUFFERS, buffer);
-	buffer[0] = alutCreateBufferFromFile("../sounds/fountain.wav");
-	buffer[1] = alutCreateBufferFromFile("../sounds/fire.wav");
+	buffer[0] = alutCreateBufferFromFile("../sounds/pickup.wav");
+	buffer[1] = alutCreateBufferFromFile("../sounds/hambiente.wav");
 	buffer[2] = alutCreateBufferFromFile("../sounds/darth_vader.wav");
 	int errorAlut = alutGetError();
 	if (errorAlut != ALUT_ERROR_NO_ERROR){
@@ -2586,6 +2589,7 @@ void applicationLoop() {
 		/****************************+
 		 * Open AL sound data
 		 */
+		//aa
 		source0Pos[0] = modelMatrixFountain[3].x;
 		source0Pos[1] = modelMatrixFountain[3].y;
 		source0Pos[2] = modelMatrixFountain[3].z;

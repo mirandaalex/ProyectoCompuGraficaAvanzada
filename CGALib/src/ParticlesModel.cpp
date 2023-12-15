@@ -118,6 +118,9 @@ void ParticlesModel::setShader(std::string vs,std::string fs){
     initTexture();
     initParticleBuffers();
 }
+
+
+
 void ParticlesModel::DrawParticles(){
     if (!showing)
     {
