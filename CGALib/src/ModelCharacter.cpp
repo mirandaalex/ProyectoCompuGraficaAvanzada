@@ -101,25 +101,26 @@ void ModelCharacter::jump(){
         jumping = true;
         t0 = TimeManager::Instance().GetTime();
         h0 = terreno->getHeightTerrain(modelMatrix[3][0],modelMatrix[3][2]);
+        // agregar el salto cons translate
     }
     
 }
 void ModelCharacter::bendDown(){
-    if (jumping && !bending)
-    {       
-        bending = true;
-        jumping = false;
-        bend_t0 = TimeManager::Instance().GetTime();
-        b_delay = true;
-    }else if (!jumping && !bending && !b_delay)
-    {
-        bend = true;
-        bending = true;
-        bending_t0 = TimeManager::Instance().GetTime();
-        this->scale.y = 0.1;
-        model->setScaleAABB(glm::vec3(scaleModel));
-        std::cout << "Shirnk" << std::endl;
-    }
+    // if (jumping && !bending)
+    // {       
+    //     bending = true;
+    //     jumping = false;
+    //     bend_t0 = TimeManager::Instance().GetTime();
+    //     b_delay = true;
+    // }else if (!jumping && !bending && !b_delay)
+    // {
+    //     bend = true;
+    //     bending = true;
+    //     bending_t0 = TimeManager::Instance().GetTime();
+    //     this->scale.y = 0.1;
+    //     model->setScaleAABB(glm::vec3(scaleModel));
+    //     std::cout << "Shirnk" << std::endl;
+    // }
     
     
 }
@@ -137,24 +138,25 @@ void ModelCharacter::interpolationMovementHandler(){
         double t = TimeManager::Instance().GetTime() - t0;
         double h = h0 + v0*t -0.5*g*t*t;
         modelMatrix[3][1] = float(h);
-    }else if (!jumping && bending && !bend)
-    {
-        float t_h = terreno->getHeightTerrain(modelMatrix[3][0],modelMatrix[3][2]);
-        float t_i = modelMatrix[3][1];
-        modelMatrix[3][1] = glm::mix(t_h,t_i,0.5f);
-    }else{
-        modelMatrix[3][1] = terreno->getHeightTerrain(modelMatrix[3][0],modelMatrix[3][2]);
-        
     }
+    // else if (!jumping && bending && !bend)
+    // {
+    //     float t_h = terreno->getHeightTerrain(modelMatrix[3][0],modelMatrix[3][2]);
+    //     float t_i = modelMatrix[3][1];
+    //     modelMatrix[3][1] = glm::mix(t_h,t_i,0.5f);
+    // }else{
+    //     modelMatrix[3][1] = terreno->getHeightTerrain(modelMatrix[3][0],modelMatrix[3][2]);
+        
+    // }
 
-    if (bend && !bending)
-    {
+    // if (bend && !bending)
+    // {
         
-        bend= false;
-        this->scale.y = 0.4;
-        model->setScaleAABB(glm::vec3(1/scaleModel));
-        std::cout << "No Shirnk " << scale.y <<std::endl;
-    }
+    //     bend= false;
+    //     this->scale.y = 0.4;
+    //     model->setScaleAABB(glm::vec3(1/scaleModel));
+    //     std::cout << "No Shirnk " << scale.y <<std::endl;
+    // }
     
 
 }
@@ -166,23 +168,27 @@ void ModelCharacter::movementDelayHandler(){
     {
         moving = false;
     }
-    if (!jumping && modelMatrix[3][1] <= terreno->getHeightTerrain(modelMatrix[3][0],modelMatrix[3][2]) && bending && !bend)
-    {
+    if (jumping && modelMatrix[3][1] <= terreno->getHeightTerrain(modelMatrix[3][0],modelMatrix[3][2]) - 0.1f){
         jumping = false;
-        bending = false;
-    }else if (jumping && modelMatrix[3][1] <= terreno->getHeightTerrain(modelMatrix[3][0],modelMatrix[3][2]))
-    {
-        jumping = false;
+        modelMatrix[3][1] = terreno->getHeightTerrain(modelMatrix[3][0],modelMatrix[3][2]);
     }
-    if(bending && jumping && bend){
-        bending = false;
-    }
-    else if ((currTime - bending_t0) > bending_delay && bending){
-        bending = false;
-    }else if ((currTime - bend_t0> bend_delay))
-    {
-       b_delay = false;
-    }
+    // if (!jumping && modelMatrix[3][1] <= terreno->getHeightTerrain(modelMatrix[3][0],modelMatrix[3][2]) && bending && !bend)
+    // {
+    //     jumping = false;
+    //     bending = false;
+    // }else if (jumping && modelMatrix[3][1] <= terreno->getHeightTerrain(modelMatrix[3][0],modelMatrix[3][2]))
+    // {
+    //     jumping = false;
+    // }
+    // if(bending && jumping && bend){
+    //     bending = false;
+    // }
+    // else if ((currTime - bending_t0) > bending_delay && bending){
+    //     bending = false;
+    // }else if ((currTime - bend_t0> bend_delay))
+    // {
+    //    b_delay = false;
+    // }
     
     
 }

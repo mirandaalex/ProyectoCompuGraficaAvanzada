@@ -121,13 +121,13 @@ void ParticlesModel::setShader(std::string vs,std::string fs){
 
 
 
-void ParticlesModel::DrawParticles(){
+void ParticlesModel::DrawParticles(glm::vec3 tmp){
     if (!showing)
     {
         currTimeParticles = TimeManager::Instance().GetTime();
         showing = true;
     }
-    
+    drawPoss = tmp;
 
 }
 void ParticlesModel::loop(glm::mat4 proj, glm::mat4 view){
@@ -140,11 +140,11 @@ void ParticlesModel::loop(glm::mat4 proj, glm::mat4 view){
             glm::value_ptr(view));
 
 
-    glm::vec3 currPoss((*modelPoss)[3][0],(*modelPoss)[3][1],(*modelPoss)[3][2]); 
+    //glm::vec3 currPoss((*modelPoss)[3][0],(*modelPoss)[3][1],(*modelPoss)[3][2]); 
     // glm::vec3 currPoss(0.0); 
     glm::mat4 modelMatrixE = glm::mat4(1.0f);
-    modelMatrixE = glm::translate(modelMatrixE, currPoss);
-    modelMatrixE[3][1] = terrain->getHeightTerrain(modelMatrixE[3][0],modelMatrixE[3][2]);
+    modelMatrixE = glm::translate(modelMatrixE, drawPoss);
+    modelMatrixE[3][1] = terrain->getHeightTerrain(modelMatrixE[3][0],modelMatrixE[3][2]) + 0.5f;
     modelMatrixE = glm::scale(modelMatrixE, glm::vec3(5.0f));
 
     // glDepthMask(GL_FALSE);

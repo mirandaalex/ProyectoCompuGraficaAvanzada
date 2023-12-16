@@ -72,7 +72,7 @@ public:
     Model *model;
     glm::mat4 modelMatrix = glm::mat4(1.0f);
     ParticlesModel *particle;
-
+    glm::vec3 movvec = glm::vec3(0.0 ,0.5, 0.0);
     //Init
     ModelReward(std::string path,glm::vec3 initPoss);
     ModelReward(std::string path);
@@ -93,9 +93,69 @@ public:
     void move(glm::vec3 move);
     void moveTB();
 
-    //audio
+    
 
 };
 
+class DLL_PUBLIC ModelObstacle
+{
+private:
+    /*Models
+    */
+    glm::mat4 modelMatrixGoal = glm::mat4(1.0f);
+    glm::vec3 initalPoss = glm::vec3(0.0f);
+    std::string path;
+    glm::vec3 scale = glm::vec3(1.0f);
+    float rotation = 0.0f;
+    //Movimiento
+    void interpolationMovementHandler();
+    void movementDelayHandler();
+    //movimiento 
+    
+    bool moving = false;
+    float verticalStride = 0.2f;
+    //salto
+    Terrain *terreno;
+ 
+
+public:
+    int MINRANGE = -40;
+    int MAXRANGE = 40;
+    Model *model;
+    glm::mat4 modelMatrix = glm::mat4(1.0f);
+    ParticlesModel *particle;
+    bool rendered = false;
+    glm::vec3 movvec = glm::vec3(0.0 ,0.5, 0.0);
+    //Init
+    ModelObstacle() =default;
+    ModelObstacle(const ModelObstacle& other) =default;
+    ModelObstacle(ModelObstacle&& other) =default;
+    
+    ModelObstacle & operator=(const ModelObstacle& other) =default;
+    ModelObstacle & operator=(ModelObstacle&& other) =default;
+
+
+    ModelObstacle(std::string path,glm::vec3 initPoss);
+    ModelObstacle(std::string path);
+    ModelObstacle(Model &vmodel);
+    ~ModelObstacle();
+    void destroy();
+    void render(glm::mat4 proj, glm::mat4 view);
+    void LoadModelShader(Shader * shaderMulLighting);
+    //Getter/Setter
+    void setScale(float newScale);
+    void setScale(glm::vec3 newScale);
+    glm::vec3 getScale();
+    void rotate(float newRotation);
+    float getCurrentRotation();
+    void setTerrain(Terrain &newTerreno);
+
+    //Movimiento
+    void move(glm::vec3 move);
+    void generate_position(int& state_obstacle, float& _random_x_obstacle, float& movement_obstacles, float & difficulty);
+
+    
+
+};
 
 #endif /* REWARD_PROY_H_ */

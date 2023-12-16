@@ -52,7 +52,7 @@ private:
     GLuint VAOParticles;
     GLuint nParticles = 200;
     double currTimeParticles, lastTimeParticles;
-    double particleslife = 2.0;
+    double particleslife = 0.5;
     float particlessize = 5.0f;
     float gravity = 0.4f;
     float vmin=0.4f;
@@ -62,6 +62,7 @@ private:
     //poss
     glm::mat4* modelPoss;
     Terrain *terrain;
+    glm::vec3 drawPoss;
 
     const std::string texture_def = "../Textures/bluewater.png";
     const std::string vertex_shader = "../Shaders/particlesFountain.vs";
@@ -79,7 +80,7 @@ public:
     void setTerrain(Terrain &vterr);
     void setShader();
     void setShader(std::string vs,std::string fs);
-    void DrawParticles();
+    void DrawParticles(glm::vec3);
     void loop(glm::mat4 proj, glm::mat4 view);
 };
 

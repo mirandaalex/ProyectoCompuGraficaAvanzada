@@ -61,7 +61,7 @@ private:
     void movementDelayHandler();
     //movimiento lateral
     ModelPoss position = Center;
-    float horizontalStride = 1.0f;
+    float horizontalStride = 2.0f;
     bool moving = false;
     double time = 0.0;
     double delay = 0.15;
