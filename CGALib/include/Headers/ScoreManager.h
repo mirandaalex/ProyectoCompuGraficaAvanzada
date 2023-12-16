@@ -57,7 +57,7 @@ class ScoreManager {
     }
 
     // Método para leer el mejor jugador desde un archivo de texto
-    bool readBestPlayer(const std::string& filename = "../00-Introduccion/src/data_player.txt") {
+    bool readBestPlayer(const std::string& filename = "../Proyecto/src/data_player.txt") {
         // Si no se proporciona un nombre de archivo, se utiliza el predeterminado
         std::string actualFilename = (filename.empty()) ? defaultFileName : filename;
 
@@ -114,7 +114,7 @@ class ScoreManager {
     } 
 
     // Método para guardar los nuevos datos en un archivo de texto
-    void saveToFile(const std::string& filename = "../00-Introduccion/src/data_player.txt") const {
+    void saveToFile(const std::string& filename = "../Proyecto/src/data_player.txt") const {
         // Si no se proporciona un nombre de archivo, se utiliza el predeterminado
         std::string actualFilename = (filename.empty()) ? defaultFileName : filename;
 

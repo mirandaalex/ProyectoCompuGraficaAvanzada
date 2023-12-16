@@ -5,7 +5,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # Set the directory where DLLs are located
     set(CMAKE_DLLTOOLCHAIN_PREFIX "../dlls")
     include_directories(
-        02-SkeletonAnimation 
+        Proyecto 
         ${CMAKE_SOURCE_DIR}/CGALib/include
         "/usr/include/freetype2" 
         "../external/assimp/include"
@@ -27,19 +27,20 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         "../external/OpenAL/lib/x64"
     )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    include_directories(${CMAKE_SOURCE_DIR}/CGALib/include)
+    include_directories(${CMAKE_SOURCE_DIR}/CGALib/include "/usr/include/freetype2")
+    # include_directories(${CMAKE_SOURCE_DIR}/CGALib/include)
 endif()
 
-add_executable(02-SkeletonAnimation ./src/main.cpp)
+add_executable(Proyecto ./src/main.cpp)
 
-set_target_properties(02-SkeletonAnimation 
+set_target_properties(Proyecto 
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "../../bin"
 )
 
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    target_link_libraries(02-SkeletonAnimation opengl32.lib libglfw3dll.dll.a libglew32.dll.a libassimp.dll.a libfreetype.dll.a libalut.dll.a OpenAL32.lib CGALib)
+    target_link_libraries(Proyecto opengl32.lib libglfw3dll.dll.a libglew32.dll.a libassimp.dll.a libfreetype.dll.a libalut.dll.a OpenAL32.lib CGALib)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    target_link_libraries(02-SkeletonAnimation glut glfw GLEW GLU GL freeimage assimp freetype alut openal CGALib)
+    target_link_libraries(Proyecto glut glfw GLEW GLU GL freeimage assimp freetype alut openal CGALib)
 endif()
