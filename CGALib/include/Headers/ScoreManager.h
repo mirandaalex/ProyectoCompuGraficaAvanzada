@@ -39,31 +39,36 @@
 #include "Headers/FontTypeRendering.h"
 
 class ScoreManager {
-private:
+  private:
     std::string playerName;
-    
+    int maxScore;
     int score;
-    glm::vec2 position;
+    float x;
+    float y;
     const std::string defaultFileName = "scores.txt"; // Nombre de archivo por defecto
     FontTypeRendering::FontTypeRendering *modelText;
-public:
+  public:
     // Constructor que inicializa playerName y score con valores predeterminados
-    ScoreManager(int screenWidth, int screenHeight, glm::vec2 _position = glm::vec2(1,1)) : playerName("Player"), score(0),position(_position){
-      modelText = new FontTypeRendering::FontTypeRendering(screenWidth, screenHeight);
-      modelText->Initialize();
+    ScoreManager(float x,float y){
+      this->score = 0;
+      this->playerName ="Player";
+      this->x = x;
+      this->y = y;
     }
 
     // Método para leer el mejor jugador desde un archivo de texto
-    void readBestPlayer(const std::string& filename = "") {
+    bool readBestPlayer(const std::string& filename = "../00-Introduccion/src/data_player.txt") {
         // Si no se proporciona un nombre de archivo, se utiliza el predeterminado
         std::string actualFilename = (filename.empty()) ? defaultFileName : filename;
 
         std::ifstream file(actualFilename);
         if (file.is_open()) {
-            file >> playerName >> score;
+            file >> playerName >> maxScore;
             file.close();
+            return true;
         } else {
             std::cerr << "Error al abrir el archivo " << actualFilename << std::endl;
+            return false;
         }
     }
 
@@ -77,7 +82,7 @@ public:
     }
 
     std::string getPlayerInfo() const {
-        return playerName + ": " + std::to_string(score);
+        return playerName + ": " + std::to_string(score) + " Max escore: " + std::to_string(maxScore);
     }
 
     // Métodos de modificación (setters)
@@ -85,8 +90,19 @@ public:
         playerName = name;
     }
 
+
     void setScore(int newScore) {
         score = newScore;
+    }
+
+    void init(int screenWidth, int screenHeight){
+      modelText = new FontTypeRendering::FontTypeRendering(screenWidth, screenHeight);
+      modelText->Initialize();
+      if(!readBestPlayer()){
+        setPlayerName("Player 1");
+        setScore(0);
+        maxScore = 0;
+      }
     }
 
     void sumScore(int newScore) {
@@ -98,23 +114,31 @@ public:
     } 
 
     // Método para guardar los nuevos datos en un archivo de texto
-    void saveToFile(const std::string& filename = "") const {
+    void saveToFile(const std::string& filename = "../00-Introduccion/src/data_player.txt") const {
         // Si no se proporciona un nombre de archivo, se utiliza el predeterminado
         std::string actualFilename = (filename.empty()) ? defaultFileName : filename;
 
         std::ofstream file(actualFilename);
         if (file.is_open()) {
-            file << playerName << " " << score;
+            file << playerName << " " << ( (score > maxScore) ? score : maxScore );
             file.close();
         } else {
             std::cerr << "Error al abrir el archivo " << actualFilename << " para escritura." << std::endl;
         }
     }
 
-  void renderScore(){
-    modelText->render(getPlayerInfo().c_str(),position.x,position.y);
-  }
+    void renderScore(){
+      modelText->render(getPlayerInfo().c_str(),x,y);
+      saveToFile();
+    }
 
+    void reset(){
+      if(!readBestPlayer()){
+        setPlayerName("Player 1");
+        setScore(0);
+        maxScore = 0;
+      }
+    }
 };
 
 #endif 

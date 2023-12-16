@@ -45,6 +45,7 @@ void GameManager::initAudio(){
 	alGenBuffers(NUM_BUFFERS, buffer);
 	buffer[0] = alutCreateBufferFromFile("../sounds/pickup.wav");
 	buffer[1] = alutCreateBufferFromFile("../sounds/explosion1.wav");
+    buffer[2] = alutCreateBufferFromFile("../sounds/minecraft.wav");
 	int errorAlut = alutGetError();
 	if (errorAlut != ALUT_ERROR_NO_ERROR){
 		printf("- Error open files with alut %d !!\n", errorAlut);
@@ -70,12 +71,41 @@ void GameManager::initAudio(){
 	alSourcef(source[0], AL_MAX_DISTANCE, 2000);
 	
     alSourcef(source[1], AL_PITCH, 1.0f);
-	alSourcef(source[1], AL_GAIN, 0.02f);
+	alSourcef(source[1], AL_GAIN, 0.25f);
 	alSourcefv(source[1], AL_POSITION, sourceObstPos);
 	alSourcefv(source[1], AL_VELOCITY, sourceObstVel);
 	alSourcei(source[1], AL_BUFFER, buffer[1]);
 	alSourcei(source[1], AL_LOOPING, AL_FALSE);
 	alSourcef(source[1], AL_MAX_DISTANCE, 2000);
+
+    alSourcef(source[2], AL_PITCH, 1.0f);
+	alSourcef(source[2], AL_GAIN, 2.0f);
+	alSourcefv(source[2], AL_POSITION, sourceAmbPos);
+	alSourcefv(source[2], AL_VELOCITY, sourceAmbVel);
+	alSourcei(source[2], AL_BUFFER, buffer[2]);
+	alSourcei(source[2], AL_LOOPING, AL_TRUE);
+	alSourcef(source[2], AL_MAX_DISTANCE, 2000);
+
+    sourceAmbPos[0] = 0;
+    sourceAmbPos[1] = 1;
+    sourceAmbPos[2] = 1;
+    alSourcefv(source[2], AL_POSITION, sourceAmbPos);
+    listenerCharacterPos[0] = 0;
+    listenerCharacterPos[1] = 1;
+    listenerCharacterPos[2] = 0;
+    alListenerfv(AL_POSITION, listenerCharacterPos);
+
+    glm::vec3 upModel = glm::normalize(glm::vec3(0,1,0));
+    glm::vec3 frontModel = glm::normalize(glm::vec3(0,0,-1));
+
+    listenerCharacterOri[0] = frontModel.x;
+    listenerCharacterOri[1] = frontModel.y;
+    listenerCharacterOri[2] = frontModel.z;
+    listenerCharacterOri[3] = upModel.x;
+    listenerCharacterOri[4] = upModel.y;
+    listenerCharacterOri[5] = upModel.z;
+    alListenerfv(AL_ORIENTATION, listenerCharacterOri);
+    alSourcePlay(source[2]);
 }
 void GameManager::playAudio(glm::mat4 esmeraldPoss, int idx){
         //ALfloat objposs[] ={esmeraldPoss[3].x,esmeraldPoss[3].y,esmeraldPoss[3].z};
@@ -89,26 +119,24 @@ void GameManager::playAudio(glm::mat4 esmeraldPoss, int idx){
         sourceObstPos[0] = esmeraldPoss[3].x;
 		sourceObstPos[1] = esmeraldPoss[3].y;
 		sourceObstPos[2] = esmeraldPoss[3].z;
-		alSourcefv(source[1], AL_POSITION, sourceObstPos);
+		alSourcefv(source[1], AL_POSITION, sourceObstPos);      
         }
-        
-		
 
 		// Listener for the Thris person camera
-		listenerCharacterPos[0] = player->modelMatrix[3].x;
-		listenerCharacterPos[1] = player->modelMatrix[3].y;
-		listenerCharacterPos[2] = player->modelMatrix[3].z;
-		alListenerfv(AL_POSITION, listenerCharacterPos);
+		// listenerCharacterPos[0] = player->modelMatrix[3].x;
+		// listenerCharacterPos[1] = player->modelMatrix[3].y;
+		// listenerCharacterPos[2] = player->modelMatrix[3].z;
+		// alListenerfv(AL_POSITION, listenerCharacterPos);
 
-		glm::vec3 upModel = glm::normalize(player->modelMatrix[1]);
-		glm::vec3 frontModel = glm::normalize(player->modelMatrix[2]);
+		// glm::vec3 upModel = glm::normalize(player->modelMatrix[1]);
+		// glm::vec3 frontModel = glm::normalize(player->modelMatrix[2]);
 
-		listenerCharacterOri[0] = frontModel.x;
-		listenerCharacterOri[1] = frontModel.y;
-		listenerCharacterOri[2] = frontModel.z;
-		listenerCharacterOri[3] = upModel.x;
-		listenerCharacterOri[4] = upModel.y;
-		listenerCharacterOri[5] = upModel.z;
+		// listenerCharacterOri[0] = frontModel.x;
+		// listenerCharacterOri[1] = frontModel.y;
+		// listenerCharacterOri[2] = frontModel.z;
+		// listenerCharacterOri[3] = upModel.x;
+		// listenerCharacterOri[4] = upModel.y;
+		// listenerCharacterOri[5] = upModel.z;
 
 		alListenerfv(AL_ORIENTATION, listenerCharacterOri);
         if (idx==0)
@@ -339,6 +367,32 @@ void GameManager::reset_tuple(){
     aux0 = NON;
     aux1 = NON;
     aux2 = NON;
+
+    float h = terreno->getHeightTerrain(positionDesplazamiento[0],currPoss);
+    glm::vec3 tmp(positionDesplazamiento[0],1.0f,currPoss);
+    rew0->move(tmp);
+
+    h = terreno->getHeightTerrain(positionDesplazamiento[0],currPoss);
+    tmp = glm::vec3(positionDesplazamiento[0],1.0f,currPoss);
+    obs0->move(tmp);
+
+    h = terreno->getHeightTerrain(positionDesplazamiento[1],currPoss);
+    tmp = glm::vec3(positionDesplazamiento[1],1.0f,currPoss);
+    rew1->move(tmp);
+
+    h = terreno->getHeightTerrain(positionDesplazamiento[1],currPoss);
+    tmp = glm::vec3(positionDesplazamiento[1],1.0f,currPoss);
+    obs1->move(tmp);
+
+    
+    h = terreno->getHeightTerrain(positionDesplazamiento[2],currPoss);
+    tmp =  glm::vec3(positionDesplazamiento[2],1.0f,currPoss);
+    rew2->move(tmp);
+    
+    h = terreno->getHeightTerrain(positionDesplazamiento[2],currPoss);
+    tmp = glm::vec3(positionDesplazamiento[2],1.0f,currPoss);
+    obs2->move(tmp);
+       
 }
 void GameManager::rendObjts(glm::mat4 proj,glm::mat4 view){
     if(aux0 == REW){
@@ -476,11 +530,14 @@ void GameManager::revivir(){
     if(vidas > 0){
         vivo = true;
         estado = Meta;
-        vel /=2;
+        vel -=aceleracion;
+        reset_tuple();
     }else{
         vivo = true;
         estado = Meta;
         score = 0;
-        vel = 1.0f;
+        vel = velI;
+        vidas = 3;
+        reset_tuple();
     }
 }

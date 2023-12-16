@@ -40,6 +40,8 @@
 #include "Headers/ModelReward.h"
 #include "Headers/GameManager.h"
 #include "Headers/World.h"
+#include "Headers/ScoreManager.h"
+
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
 
 int screenWidth;
@@ -87,8 +89,8 @@ ModelCharacter minecard("../models/minecart/minecard.fbx");
 GameManager gameManager(true);
 // ModelObstacle muro_contencion0("../models/Minecraft/andesita.obj", glm::vec3(1,1,1));
 //obstaculos
-Model muro_contencion1;
-Model muro_contencion2;
+Model modelMuro;
+//Model muro_contencion2;
 
 Model obs0;
 Model obs1;
@@ -105,7 +107,7 @@ vector<Model*> obss = {
 Obstacle aux_obs;
 vector<Obstacle> obstacles = { Obstacle(), Obstacle(), Obstacle(), Obstacle() };
 Trapper<Obstacle>trapper(obstacles);
-
+bool op = true;
 // Terrain
 // Terrain terrain(-1, -1, 200, 10, "../Textures/pista_relieve.png");
 
@@ -114,7 +116,7 @@ Trapper<Obstacle>trapper(obstacles);
  //GLuint textureInit1ID, textureInit2ID, textureActivaID, textureScreenID;
 // GLuint skyboxTextureID;
 //Texturas Menu
-GLuint textureInit1ID, textureInit2ID, textureInit3ID, textureActivaID,textureScreen1ID, textureScreen2ID, textureScreenID;
+GLuint textureInit1ID, textureInit2ID, textureInit3ID, textureActivaID,textureScreen1ID, textureScreen2ID, textureScreenID, textureScreen3ID, textureScreen4ID;
 bool iniciaPartida = false, presionarOpcion = false, presionarOpcion2 = false;
 Box boxIntro;
 
@@ -127,20 +129,112 @@ GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
 GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
 GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
 
-std::string fileNames[6] = { "../Textures/mp_bloodvalley/blood-valley_ft.tga",
-		"../Textures/mp_bloodvalley/blood-valley_bk.tga",
-		"../Textures/mp_bloodvalley/blood-valley_up.tga",
-		"../Textures/mp_bloodvalley/blood-valley_dn.tga",
-		"../Textures/mp_bloodvalley/blood-valley_rt.tga",
-		"../Textures/mp_bloodvalley/blood-valley_lf.tga" };
+std::string fileNames[6] = { "../Textures/SkyBox/SkyBox_Front.tga",
+		"../Textures/SkyBox/SkyBox_Back.tga",
+		"../Textures/SkyBox/SkyBox_Top.tga",
+		"../Textures/SkyBox/SkyBox_Botton.tga",
+		"../Textures/SkyBox/SkyBox_Right.tga",
+		"../Textures/SkyBox/SkyBox_Left.tga" };
 
 bool exitApp = false;
 int lastMousePosX, offsetX = 0;
 int lastMousePosY, offsetY = 0;
 
+ScoreManager scoreManager(-0.75, 0.75);
+
 //bb
-glm::mat4 matrixModelMuro1 = glm::mat4(1.0);
-glm::mat4 matrixModelMuro2 = glm::mat4(1.0);
+glm::mat4 modelMatrixMuro = glm::mat4(1.0f);
+//glm::mat4 matrixModelMuro2 = glm::mat4(1.0);
+
+std::vector<glm::vec3> muroPosition ={
+	glm::vec3 (4.0f, 0.0f, 5.0f),
+	glm::vec3 (4.0f, 0.0f, 3.0f),
+	glm::vec3 (4.0f, 0.0f, 1.0f),
+	glm::vec3 (4.0f, 0.0f, -1.0f),
+	glm::vec3 (4.0f, 0.0f, -3.0f),
+	glm::vec3 (4.0f, 0.0f, -5.0f),
+	glm::vec3 (4.0f, 0.0f, -7.0f),
+	glm::vec3 (4.0f, 0.0f, -9.0f),
+	glm::vec3 (4.0f, 0.0f, -11.0f),
+	glm::vec3 (4.0f, 0.0f, -13.0f),
+	glm::vec3 (4.0f, 0.0f, -15.0f),
+	glm::vec3 (4.0f, 0.0f, -17.0f),
+	glm::vec3 (4.0f, 0.0f, -19.0f),
+	glm::vec3 (4.0f, 0.0f, -21.0f),
+	glm::vec3 (4.0f, 0.0f, -23.0f),
+	glm::vec3 (4.0f, 0.0f, -25.0f),
+	glm::vec3 (4.0f, 0.0f, -27.0f),
+	glm::vec3 (4.0f, 0.0f, -29.0f),
+	glm::vec3 (4.0f, 0.0f, -31.0f),
+	glm::vec3 (4.0f, 0.0f, -33.0f),
+	glm::vec3 (4.0f, 0.0f, -35.0f),
+	glm::vec3 (4.0f, 0.0f, -37.0f),
+	glm::vec3 (4.0f, 0.0f, -39.0f),
+	glm::vec3 (4.0f, 0.0f, -41.0f),
+	glm::vec3 (4.0f, 0.0f, -43.0f),
+	glm::vec3 (4.0f, 0.0f, -45.0f),
+	glm::vec3 (4.0f, 0.0f, -47.0f),
+	glm::vec3 (4.0f, 0.0f, -49.0f),
+	glm::vec3 (4.0f, 0.0f, -51.0f),
+	glm::vec3 (4.0f, 0.0f, -53.0f),
+	glm::vec3 (4.0f, 0.0f, -55.0f),
+	glm::vec3 (4.0f, 0.0f, -57.0f),
+	glm::vec3 (4.0f, 0.0f, -59.0f),
+	glm::vec3 (4.0f, 0.0f, -61.0f),
+	glm::vec3 (4.0f, 0.0f, -63.0f),
+	glm::vec3 (4.0f, 0.0f, -65.0f),
+	glm::vec3 (4.0f, 0.0f, -67.0f),
+	glm::vec3 (4.0f, 0.0f, -69.0f),
+	glm::vec3 (4.0f, 0.0f, -71.0f),
+	glm::vec3 (4.0f, 0.0f, -73.0f),
+	glm::vec3 (4.0f, 0.0f, -75.0f),
+	glm::vec3 (4.0f, 0.0f, -77.0f),
+	glm::vec3 (4.0f, 0.0f, -79.0f),
+
+	glm::vec3 (-4.0f, 0.0f, 5.0f),
+	glm::vec3 (-4.0f, 0.0f, 3.0f),
+	glm::vec3 (-4.0f, 0.0f, 1.0f),
+	glm::vec3 (-4.0f, 0.0f, -1.0f),
+	glm::vec3 (-4.0f, 0.0f, -3.0f),
+	glm::vec3 (-4.0f, 0.0f, -5.0f),
+	glm::vec3 (-4.0f, 0.0f, -7.0f),
+	glm::vec3 (-4.0f, 0.0f, -9.0f),
+	glm::vec3 (-4.0f, 0.0f, -11.0f),
+	glm::vec3 (-4.0f, 0.0f, -13.0f),
+	glm::vec3 (-4.0f, 0.0f, -15.0f),
+	glm::vec3 (-4.0f, 0.0f, -17.0f),
+	glm::vec3 (-4.0f, 0.0f, -19.0f),
+	glm::vec3 (-4.0f, 0.0f, -21.0f),
+	glm::vec3 (-4.0f, 0.0f, -23.0f),
+	glm::vec3 (-4.0f, 0.0f, -25.0f),
+	glm::vec3 (-4.0f, 0.0f, -27.0f),
+	glm::vec3 (-4.0f, 0.0f, -29.0f),
+	glm::vec3 (-4.0f, 0.0f, -31.0f),
+	glm::vec3 (-4.0f, 0.0f, -33.0f),
+	glm::vec3 (-4.0f, 0.0f, -35.0f),
+	glm::vec3 (-4.0f, 0.0f, -37.0f),
+	glm::vec3 (-4.0f, 0.0f, -39.0f),
+	glm::vec3 (-4.0f, 0.0f, -41.0f),
+	glm::vec3 (-4.0f, 0.0f, -43.0f),
+	glm::vec3 (-4.0f, 0.0f, -45.0f),
+	glm::vec3 (-4.0f, 0.0f, -47.0f),
+	glm::vec3 (-4.0f, 0.0f, -49.0f),
+	glm::vec3 (-4.0f, 0.0f, -51.0f),
+	glm::vec3 (-4.0f, 0.0f, -53.0f),
+	glm::vec3 (-4.0f, 0.0f, -55.0f),
+	glm::vec3 (-4.0f, 0.0f, -57.0f),
+	glm::vec3 (-4.0f, 0.0f, -59.0f),
+	glm::vec3 (-4.0f, 0.0f, -61.0f),
+	glm::vec3 (-4.0f, 0.0f, -63.0f),
+	glm::vec3 (-4.0f, 0.0f, -65.0f),
+	glm::vec3 (-4.0f, 0.0f, -67.0f),
+	glm::vec3 (-4.0f, 0.0f, -69.0f),
+	glm::vec3 (-4.0f, 0.0f, -71.0f),
+	glm::vec3 (-4.0f, 0.0f, -73.0f),
+	glm::vec3 (-4.0f, 0.0f, -75.0f),
+	glm::vec3 (-4.0f, 0.0f, -77.0f),
+	glm::vec3 (-4.0f, 0.0f, -79.0f)
+};
 
 double deltaTime;
 double currTime, lastTime;
@@ -233,7 +327,10 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	// reward.LoadModelShader(&shaderMulLighting);
 	// reward.setTerrain(terrain);
 	// reward.setScale(1.0f);
-	// muro_contencion0.LoadModelShader(&shaderMulLighting);
+
+	modelMuro.loadModel("../models/muroPiedra/muroPiedraF.obj");
+	modelMuro.setShader(&shaderMulLighting);
+
 	// muro_contencion0.setTerrain(terrain);
 	// muro_contencion0.setScale(0.5f);
 	gameManager.setShader(&shaderMulLighting);
@@ -267,7 +364,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	// gameManager.obs2->setTerrain(terrain);
 	// gameManager.obs2->setScale(1.0f);
 
-	camera->setPosition(glm::vec3(0.0, 3.0, 4.0));
+	camera->setPosition(glm::vec3(0.0, 2.5, 5.0));
 	
 	// Carga de texturas para el skybox
 	Texture skyboxTexture = Texture("");
@@ -455,7 +552,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	textureIntro3.freeImage(); // Liberamos memoria
 
 	// Definiendo la textura 
-	Texture textureScreen("../Textures/Screen.png");
+	Texture textureScreen("../Textures/3vidas.png");
 	textureScreen.loadImage(); // Cargar la textura
 	glGenTextures(1, &textureScreenID); // Creando el id de la textura del landingpad
 	glBindTexture(GL_TEXTURE_2D, textureScreenID); // Se enlaza la textura
@@ -472,6 +569,84 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	else 
 		std::cout << "Fallo la carga de textura" << std::endl;
 	textureScreen.freeImage(); // Liberamos memoria
+
+	// Definiendo la textura 2vidas
+	Texture textureScreen1("../Textures/2vidas.png");
+	textureScreen1.loadImage(); // Cargar la textura
+	glGenTextures(1, &textureScreen1ID); // Creando el id de la textura del landingpad
+	glBindTexture(GL_TEXTURE_2D, textureScreen1ID); // Se enlaza la textura
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrapping en el eje v
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtering de maximimizacion
+	if(textureScreen1.getData()){
+		// Transferir los datos de la imagen a la tarjeta
+		glTexImage2D(GL_TEXTURE_2D, 0, textureScreen1.getChannels() == 3 ? GL_RGB : GL_RGBA, textureScreen1.getWidth(), textureScreen1.getHeight(), 0,
+		textureScreen1.getChannels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, textureScreen1.getData());
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else 
+		std::cout << "Fallo la carga de textura" << std::endl;
+	textureScreen1.freeImage(); // Liberamos memoria
+
+	// Definiendo la textura 1 vida 
+	Texture textureScreen2("../Textures/1vida.png");
+	textureScreen2.loadImage(); // Cargar la textura
+	glGenTextures(1, &textureScreen2ID); // Creando el id de la textura del landingpad
+	glBindTexture(GL_TEXTURE_2D, textureScreen2ID); // Se enlaza la textura
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrapping en el eje v
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtering de maximimizacion
+	if(textureScreen2.getData()){
+		// Transferir los datos de la imagen a la tarjeta
+		glTexImage2D(GL_TEXTURE_2D, 0, textureScreen2.getChannels() == 3 ? GL_RGB : GL_RGBA, textureScreen2.getWidth(), textureScreen2.getHeight(), 0,
+		textureScreen2.getChannels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, textureScreen2.getData());
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else 
+		std::cout << "Fallo la carga de textura" << std::endl;
+	textureScreen2.freeImage(); // Liberamos memoria
+
+	// Definiendo la textura fin de partida
+	Texture textureScreen3("../Textures/finPartida1.png");
+	textureScreen3.loadImage(); // Cargar la textura
+	glGenTextures(1, &textureScreen3ID); // Creando el id de la textura del landingpad
+	glBindTexture(GL_TEXTURE_2D, textureScreen3ID); // Se enlaza la textura
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrapping en el eje v
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtering de maximimizacion
+	if(textureScreen3.getData()){
+		// Transferir los datos de la imagen a la tarjeta
+		glTexImage2D(GL_TEXTURE_2D, 0, textureScreen3.getChannels() == 3 ? GL_RGB : GL_RGBA, textureScreen3.getWidth(), textureScreen3.getHeight(), 0,
+		textureScreen3.getChannels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, textureScreen3.getData());
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else 
+		std::cout << "Fallo la carga de textura" << std::endl;
+	textureScreen3.freeImage(); // Liberamos memoria
+
+	// Definiendo la textura fin de partida
+	Texture textureScreen4("../Textures/finPartida2.png");
+	textureScreen4.loadImage(); // Cargar la textura
+	glGenTextures(1, &textureScreen4ID); // Creando el id de la textura del landingpad
+	glBindTexture(GL_TEXTURE_2D, textureScreen4ID); // Se enlaza la textura
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrapping en el eje v
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtering de maximimizacion
+	if(textureScreen4.getData()){
+		// Transferir los datos de la imagen a la tarjeta
+		glTexImage2D(GL_TEXTURE_2D, 0, textureScreen4.getChannels() == 3 ? GL_RGB : GL_RGBA, textureScreen4.getWidth(), textureScreen4.getHeight(), 0,
+		textureScreen4.getChannels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, textureScreen4.getData());
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else 
+		std::cout << "Fallo la carga de textura" << std::endl;
+	textureScreen4.freeImage(); // Liberamos memoria
+
+	scoreManager.init(screenWidth, screenHeight);
 
 }
 
@@ -494,7 +669,7 @@ void destroy() {
 	minecard.destroy();
 	terrain.destroy();
 	// reward.destroy();
-	// muro_contencion0.destroy();
+	modelMuro.destroy();
 	
 	// Textures Delete
 	glDeleteTextures(1, &textureCespedID);
@@ -513,6 +688,8 @@ void destroy() {
 	glDeleteTextures(1, &textureActivaID);
 	glDeleteTextures(1, &textureScreen1ID);
 	glDeleteTextures(1, &textureScreen2ID);
+	glDeleteTextures(1, &textureScreen3ID);
+	glDeleteTextures(1, &textureScreen4ID);
 	glDeleteTextures(1, &textureScreenID);
 }
 
@@ -583,59 +760,133 @@ bool processInput(bool continueApplication) {
 		}
 		else if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE)
 			presionarOpcion = false;
-	}
+	}else{
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera->moveFrontCamera(true, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera->moveFrontCamera(false, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera->moveRightCamera(false, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera->moveRightCamera(true, deltaTime);
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-		camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
-	offsetX = 0;
-	offsetY = 0;
 
-	// Seleccionar modelo
-	if (enableCountSelected && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS){
-		enableCountSelected = false;
-		modelSelected++;
-		if(modelSelected > 3)
-			modelSelected = 0;
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			camera->moveFrontCamera(true, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			camera->moveFrontCamera(false, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			camera->moveRightCamera(false, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			camera->moveRightCamera(true, deltaTime);
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+			camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
+		offsetX = 0;
+		offsetY = 0;
+
 		
-		std::cout << "modelSelected:" << modelSelected << std::endl;
-	}
-	else if(glfwGetKey(window, GLFW_KEY_TAB) == GLFW_RELEASE)
-		enableCountSelected = true;
+		bool flush = glfwGetKey(window, GLFW_KEY_R);
+		
+		if(gameManager.vivo){
+			if( glfwGetKey(window, GLFW_KEY_LEFT)  == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+				minecard.moveLeft();
+			}else if ( glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_LEFT)  == GLFW_PRESS)
+			{
+				minecard.moveRight();
+			}
+			if ( glfwGetKey(window, GLFW_KEY_SPACE)  == GLFW_PRESS)
+			{
+				minecard.jump();
+			}
+			if ( glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)  == GLFW_PRESS)
+			{
+				minecard.bendDown();
+			}
+		}else if(!(gameManager.vivo) && gameManager.vidas==0 && glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
+				
+				if (textureActivaID == textureScreen3ID)
+				{
+					op = true;
+					gameManager.revivir();
+					scoreManager.reset();
+				}else if(textureActivaID==textureScreen4ID){
+					exitApp = true;
+				}
+				
+		}
+		
+		flush = glfwGetKey(window, GLFW_KEY_TAB);
+		
 
+		if (gameManager.vidas == 3){
+			textureActivaID = textureScreenID;
+		}else if(gameManager.vidas == 2){
+			textureActivaID = textureScreen1ID;
+		}else if(gameManager.vidas == 1){
+			textureActivaID = textureScreen2ID;
+		}else if (gameManager.vidas == 0){
+			if (glfwGetKey(window, GLFW_KEY_TAB)== GLFW_PRESS)
+			op = !op;
+			if(op){
+				textureActivaID= textureScreen3ID;
+			}else{
+				textureActivaID=textureScreen4ID;
+			}
+		}
+		
+	}
 	
-
-	if(modelSelected == 0 && glfwGetKey(window, GLFW_KEY_LEFT)  == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
-		if(gameManager.vivo)
-		minecard.moveLeft();
-	}else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_LEFT)  == GLFW_PRESS)
-	{
-		if(gameManager.vivo)
-		minecard.moveRight();
-	}
-	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_SPACE)  == GLFW_PRESS)
-	{
-		if(gameManager.vivo)
-		minecard.jump();
-	}
-	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)  == GLFW_PRESS)
-	{
-		if(gameManager.vivo)
-		minecard.bendDown();
-	}
 	
 	
 	
 
 	glfwPollEvents();
 	return continueApplication;
+}
+
+void renderAlphaScene(bool render = true){
+	/****
+	 * Update the position with alpha objects
+	 */
+
+	/****
+	 * Render de las transparencias
+	 */
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+
+	if(render){
+		/*****Render de imagen de frente*****/
+		shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(glm::mat4(1.0)));
+		shaderTexture.setMatrix4("view", 1, false, glm::value_ptr(glm::mat4(1.0)));
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureActivaID);
+		shaderTexture.setInt("outTexture", 0);
+		glEnable(GL_BLEND);
+		boxIntro.render();
+		glDisable(GL_BLEND);
+	}
+	glDisable(GL_CULL_FACE);
+}
+
+void renderSolidScene(glm::mat4 projection, glm::mat4 view){
+	/*******************************************
+	 * Skybox
+	 *******************************************/
+	GLint oldCullFaceMode;
+	GLint oldDepthFuncMode;
+	// deshabilita el modo del recorte de caras ocultas para ver las esfera desde adentro
+	glGetIntegerv(GL_CULL_FACE_MODE, &oldCullFaceMode);
+	glGetIntegerv(GL_DEPTH_FUNC, &oldDepthFuncMode);
+	shaderSkybox.setFloat("skybox", 0);
+	glCullFace(GL_FRONT);
+	glDepthFunc(GL_LEQUAL);
+	glActiveTexture(GL_TEXTURE0);
+	skyboxSphere.render();
+	glCullFace(oldCullFaceMode);
+	glDepthFunc(oldDepthFuncMode);
+
+	gameManager.loop(projection, view);
+}
+
+void renderScene(glm::mat4 projection, glm::mat4 view){
+	renderSolidScene(projection, view);
+	renderAlphaScene(false);
 }
 
 void applicationLoop() {
@@ -719,6 +970,8 @@ void applicationLoop() {
 		shaderMulLighting.setInt("pointLightCount", 0);
 		shaderTerrain.setInt("pointLightCount", 0);
 
+		
+
 		/************Render de imagen de frente**************/
 		if(!iniciaPartida){
 			shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(glm::mat4(1.0)));
@@ -730,6 +983,8 @@ void applicationLoop() {
 			glfwSwapBuffers(window);
 			continue;
 		}
+
+		
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureCespedID);
@@ -766,18 +1021,41 @@ void applicationLoop() {
 		
 		minecard.render();
 		// reward.render(projection, view);
-		// muro_contencion0.render(projection, view);
 
+		for (int i =0; i< muroPosition.size(); i++){
+			glm::mat4 modelMatrixMuros = glm::mat4(1.0f);
+			modelMatrixMuros = glm::translate(modelMatrixMuros, muroPosition[i]);
+			glm::vec3 muroPosition = glm::vec3(modelMatrixMuros[3]);
+		//modelMatrixMuro[3][1] = terrain.getHeightTerrain(modelMatrixMuro[3][0], modelMatrixMuro[3][2]);
+		//glm::mat4 modelMatrixMuros = glm::mat4(modelMatrixMuro);
+		//modelMuro.render(modelMatrixMuros);
+		}
+
+		for(int i = 0; i< muroPosition.size(); i++){
+			muroPosition[i].y =  terrain.getHeightTerrain(muroPosition[i].x, muroPosition[i].z);
+			modelMuro.setPosition(muroPosition[i]);
+			modelMuro.setScale(glm::vec3(0.25));
+			//modelMuro.setOrientation(glm::vec3(0, muroPosition[i],0));
+			modelMuro.render();
+		}
+
+		//renderSolidScene();
+		renderScene(projection, view);
+		/**********Render de transparencias***************/
+		renderAlphaScene();
 		
-        // gameManager.rew0->render(projection, view);
+		if (gameManager.vidas>0 && !(gameManager.vivo))
+		{
+			/*Revivir */
+			gameManager.revivir();
+		}
+		// gameManager.rew0->render(projection, view);
         // gameManager.obs0->render(projection, view);
         // gameManager.rew1->render(projection, view);
         // gameManager.obs1->render(projection, view);
         // gameManager.obs2->render(projection, view);
         // gameManager.rew2->render(projection, view);
-		gameManager.loop(projection, view);
 		
-
 		/*******************************************
 		 * Skybox
 		 *******************************************/
@@ -794,6 +1072,11 @@ void applicationLoop() {
 		glCullFace(oldCullFaceMode);
 		glDepthFunc(oldDepthFuncMode);
 
+		scoreManager.setScore(gameManager.score);
+		scoreManager.renderScore();
+
+
+		
 		
 
 		glfwSwapBuffers(window);

@@ -30,7 +30,8 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
      include_directories(
           CGALib 
           "./include/" 
-          "/usr/include/freetype2" 
+          "/usr/include/freetype2/" 
+          "/usr/include/libpng16/" 
      )
 endif()
 add_library(CGALib SHARED ${CGALib_SRC})

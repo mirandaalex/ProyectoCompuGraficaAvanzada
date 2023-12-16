@@ -45,8 +45,8 @@
 #include <AL/alut.h>
 
 
-#define NUM_BUFFERS 2
-#define NUM_SOURCES 2
+#define NUM_BUFFERS 3
+#define NUM_SOURCES 3
 #define NUM_ENVIRONMENTS 1
 // Listener
 ALfloat listenerCharacterPos[] = { 0.0, 0.0, 4.0 };
@@ -57,6 +57,8 @@ ALfloat sourceEsmeraldPos[] = { -2.0, 0.0, 0.0 };
 ALfloat sourceEsmeraldVel[] = { 0.0, 0.0, 0.0 };
 ALfloat sourceObstPos[] = { -2.0, 0.0, 0.0 };
 ALfloat sourceObstVel[] = { 0.0, 0.0, 0.0 };
+ALfloat sourceAmbPos[] = { -2.0, 0.0, 0.0 };
+ALfloat sourceAmbVel[] = { 0.0, 0.0, 0.0 };
 
 // Buffers
 ALuint buffer[NUM_BUFFERS];
@@ -113,8 +115,9 @@ public:
     const float initPoss=-50.0f;
     float currPoss=0.0f;
     float stride=0.1f;
-    float vel=1.0f;
-    float aceleracion=0.2f;
+    float vel=2.5f;
+    const float velI = 2.5f;
+    float aceleracion=0.6f;
     bool vivo = true;
     int score = 0;
     double scoret0,scoret1;
