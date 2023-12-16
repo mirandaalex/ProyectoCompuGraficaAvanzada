@@ -86,7 +86,7 @@ Terrain terrain(-1, -1, 200, 10, "../Textures/pista_relieve.png");
 //Modelo Proyecto
 ModelCharacter minecard("../models/minecart/minecard.fbx");
 // ModelReward reward("../models/Minecraft/esmeralda.fbx", glm::vec3(1,1,1));
-GameManager gameManager(true);
+GameManager gameManager(false);
 // ModelObstacle muro_contencion0("../models/Minecraft/andesita.obj", glm::vec3(1,1,1));
 //obstaculos
 Model modelMuro;
@@ -738,18 +738,36 @@ bool processInput(bool continueApplication) {
 	if (exitApp || glfwWindowShouldClose(window) != 0) {
 		return false;
 	}
+	int axesCount, buttonCount;
+	const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
+	
+	if (glfwJoystickPresent(GLFW_JOYSTICK_1)){
+		std::cout << "Se deteco el joistick "<< glfwGetJoystickName(GLFW_JOYSTICK_1) << std::endl;
+		std::cout << "ejes detectados " << axesCount << std::endl;
+		std::cout << "Eje left axes x: "<< axes[0] <<  std::endl;
+		std::cout << "Eje left axes y: "<< axes[1] <<  std::endl;
+		std::cout << "Eje right axes x: "<< axes[3] <<  std::endl;//right x
+		std::cout << "Eje right axes y: "<< axes[4] <<  std::endl;// right y
+		std::cout << "Gatillo left: "<< axes[2] <<  std::endl;//Gatillo izq
+		std::cout << "Gatillo right: "<< axes[5] <<  std::endl;
+		const  unsigned char *button = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+		std::cout << "Botones detectados " << buttonCount << std::endl;
+		
+		// if (button[0]){}
+		
+		
+	}
 	//menu
 	if(!iniciaPartida){
 		GLuint textureActivaAuxID;
-		bool presionarEnter = glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS;
-		bool presionarIntro = glfwGetKey(window, GLFW_KEY_DELETE) == GLFW_PRESS;
+		bool presionarEnter = (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) || (glfwJoystickPresent(GLFW_JOYSTICK_1) && (axes[5]>0.0f));
 		if(textureActivaID == textureInit1ID && presionarEnter){
 			textureActivaID = textureScreenID;
 			iniciaPartida = true;
 			return true;
 		}else if(textureActivaID == textureInit3ID && presionarEnter)
 			exitApp = true;
-		else if(!presionarOpcion && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS){
+		else if(!presionarOpcion && (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)){
 			presionarOpcion = true;
 			if(textureActivaID == textureInit1ID)
 				textureActivaID = textureInit2ID;
@@ -758,43 +776,58 @@ bool processInput(bool continueApplication) {
 			else if(textureActivaID == textureInit3ID)
 				textureActivaID = textureInit1ID;
 		}
-		else if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE)
+		else if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE){
 			presionarOpcion = false;
+		}
+		if(!presionarOpcion2 && ((glfwJoystickPresent(GLFW_JOYSTICK_1) && (axes[1]>0.4)))){
+			presionarOpcion2 = true;
+			if(textureActivaID == textureInit1ID)
+				textureActivaID = textureInit2ID;
+			else if(textureActivaID == textureInit2ID)
+				textureActivaID = textureInit3ID;
+			else if(textureActivaID == textureInit3ID)
+				textureActivaID = textureInit1ID;
+		}else if(((glfwJoystickPresent(GLFW_JOYSTICK_1) && (axes[1]<0.4)))){
+			presionarOpcion2 = false;
+		}
 	}else{
 
 
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			camera->moveFrontCamera(true, deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			camera->moveFrontCamera(false, deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			camera->moveRightCamera(false, deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			camera->moveRightCamera(true, deltaTime);
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-			camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
-		offsetX = 0;
-		offsetY = 0;
+		// if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		// 	camera->moveFrontCamera(true, deltaTime);
+		// if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		// 	camera->moveFrontCamera(false, deltaTime);
+		// if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		// 	camera->moveRightCamera(false, deltaTime);
+		// if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		// 	camera->moveRightCamera(true, deltaTime);
+		// if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		// 	camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
+		// offsetX = 0;
+		// offsetY = 0;
 
 		
 		bool flush = glfwGetKey(window, GLFW_KEY_R);
 		
 		if(gameManager.vivo){
-			if( glfwGetKey(window, GLFW_KEY_LEFT)  == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+			if( (glfwGetKey(window, GLFW_KEY_LEFT)  == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+				|| ((glfwJoystickPresent(GLFW_JOYSTICK_1) && (axes[0]>0.2)))){
 				minecard.moveLeft();
-			}else if ( glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_LEFT)  == GLFW_PRESS)
-			{
+			}else if ( (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_LEFT)  == GLFW_PRESS)
+				|| ((glfwJoystickPresent(GLFW_JOYSTICK_1) && (axes[0]<-0.2)))){
 				minecard.moveRight();
 			}
-			if ( glfwGetKey(window, GLFW_KEY_SPACE)  == GLFW_PRESS)
-			{
+			if ((glfwGetKey(window, GLFW_KEY_SPACE)  == GLFW_PRESS)
+				|| ((glfwJoystickPresent(GLFW_JOYSTICK_1) && (axes[5]>0)))){
 				minecard.jump();
 			}
 			if ( glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)  == GLFW_PRESS)
 			{
 				minecard.bendDown();
 			}
-		}else if(!(gameManager.vivo) && gameManager.vidas==0 && glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
+		}else if(!(gameManager.vivo) && gameManager.vidas==0 && 
+				(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS || 
+				((glfwJoystickPresent(GLFW_JOYSTICK_1) && (axes[2]>0))))){
 				
 				if (textureActivaID == textureScreen3ID)
 				{
@@ -817,7 +850,8 @@ bool processInput(bool continueApplication) {
 		}else if(gameManager.vidas == 1){
 			textureActivaID = textureScreen2ID;
 		}else if (gameManager.vidas == 0){
-			if (glfwGetKey(window, GLFW_KEY_TAB)== GLFW_PRESS)
+			if (glfwGetKey(window, GLFW_KEY_TAB)== GLFW_PRESS || 
+				((glfwJoystickPresent(GLFW_JOYSTICK_1) && (axes[5]>0))))
 			op = !op;
 			if(op){
 				textureActivaID= textureScreen3ID;
